@@ -1,0 +1,4 @@
+Model,Spatial_CV_R2_Mean,Spatial_CV_R2_Std,Spatial_CV_RMSE_degC,Spatial_CV_MAE_degC
+XGBoost Regressor,0.9502,0.0558,0.731,0.511
+Random Forest Regressor,0.9438,0.0611,0.785,0.532
+"Ridge Regression (Baseline, L2 alpha=1.0)",0.8985,0.073,1.207,0.945

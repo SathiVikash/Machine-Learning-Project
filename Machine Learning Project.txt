@@ -1,0 +1,617 @@
+Yes. Since you have now selected **Urban Heat Risk**, I would structure the project so that it is **not merely another LST/UHI mapping project**. Recent work already covers Chennai thermal zonation with K-Means, Ahmedabad LST prediction with XGBoost, Delhi neighbourhood-scale XGBoost-SHAP analysis, and demographic heat-risk analysis with XGBoost-SHAP. ([ScienceDirect][1])
+
+So I recommend positioning your work around **neighbourhood-level heat vulnerability**, where **heat exposure and human vulnerability are combined**, while ML is used to identify and explain the environmental/urban factors behind the exposure.
+
+# Proposed Title
+
+**Explainable Machine Learning for Urban Heat Vulnerability Assessment and Risk Mapping in an Indian City**
+
+If you want to specify the city later:
+
+> **Explainable Machine Learning for Urban Heat Vulnerability Assessment and Risk Mapping in Chennai, India**
+
+I prefer the second one if you are reasonably sure you can obtain the necessary data for Chennai.
+
+---
+
+# 1. Abstract
+
+::contentReference[oaicite:1]{index="1"}
+
+---
+
+# 2. Literature Survey
+
+## 2.1 Urban Heat Island and Land Surface Temperature
+
+Urban Heat Island (UHI) research has increasingly relied on remote sensing because satellite observations provide spatially continuous measurements of land surface conditions. Landsat is particularly useful because its Level-2 products provide surface temperature together with multispectral information that can be used to derive vegetation, built-up and water-related indices. The USGS states that Landsat surface-temperature products are specifically applicable to monitoring urban heat-island effects and are available globally. ([USGS][2])
+
+Traditional urban heat studies generally examine relationships between LST and land-use/land-cover variables such as vegetation, built-up areas and water bodies. This provides a strong basis for understanding the physical drivers of urban heat but does not necessarily identify which neighbourhoods are most vulnerable to the consequences of that heat.
+
+---
+
+## 2.2 Machine Learning for Urban Heat Prediction
+
+Machine learning has increasingly been used to model the nonlinear relationship between urban characteristics and LST.
+
+For example, Mohammad et al. developed an ML-based framework for Ahmedabad, India, using multi-temporal Landsat data. Their study used an ANN-based Cellular Automata model for future LULC prediction and XGBoost regression to predict seasonal LST. The study demonstrated that machine learning could model future thermal conditions under projected land-use changes. ([ScienceDirect][3])
+
+This establishes that **ML-based LST prediction in Indian cities is already an established research direction**. Therefore, simply implementing Random Forest or XGBoost to predict LST in another Indian city would provide limited novelty.
+
+Similarly, recent work has applied machine learning to urban heat patterns in Delhi. A 2025 study used LSTM and Prophet to forecast temperature patterns using historical data from 2003–2021, demonstrating the use of temporal deep learning for urban heat forecasting. ([Springer Link][4])
+
+---
+
+## 2.3 Explainable Machine Learning for Urban Heat
+
+The emergence of Explainable AI has provided a way to move beyond simply predicting temperature toward understanding **why** a model predicts higher heat.
+
+Recent studies have used XGBoost combined with SHAP to identify the contribution of built-environment and landscape variables to urban thermal conditions. A 2025 study investigating the urban thermal environment demonstrated the use of XGBoost-SHAP to analyse spatial and temporal effects. ([MDPI][5])
+
+A 2026 study examining Xi'an found nonlinear relationships between urban morphology and heat, with variables such as 3D form, NDVI and sky-view-related characteristics contributing to urban heat variation. ([ScienceDirect][6])
+
+Similarly, research in Hue City combined Landsat-derived variables with Random Forest, XGBoost and deep neural networks and used SHAP to identify important heat-driving factors. Built-up density, road density and bare-soil-related variables were among the important predictors. ([CoLab][7])
+
+These studies indicate that:
+
+> **"XGBoost + SHAP + LST" alone is no longer a sufficient novelty claim.**
+
+Your research therefore needs to move toward the **vulnerability and risk dimension**.
+
+---
+
+## 2.4 Urban Heat Vulnerability
+
+Heat vulnerability differs from simple heat exposure because it considers characteristics of the population and its ability to cope with heat.
+
+A recent 2025 study in Chongqing proposed an explainable ML framework that integrated heat exposure, accessibility to heat-mitigation resources and demographic characteristics. The researchers used XGBoost-SHAP to investigate demographic disparities in urban heat risk and found that vulnerable population groups experienced higher exposure and lower access to mitigation resources. ([ScienceDirect][8])
+
+This is particularly relevant to your proposed project because it demonstrates that **heat risk should not be treated simply as a temperature map**.
+
+However, the approach also means that your research cannot claim that "combining population data with LST" is completely new. Instead, your contribution should be more specific—for example:
+
+* neighbourhood-scale vulnerability mapping for an Indian city;
+* integration of environmental, built-form and population variables;
+* comparison of interpretable and high-performing models;
+* identification of nonlinear thresholds;
+* analysis of spatial disparities;
+* prioritization of intervention zones.
+
+---
+
+## 2.5 Indian Urban Heat Research
+
+India provides a particularly relevant research setting because rapid urbanization has substantially altered land-use patterns and thermal environments.
+
+Ahmedabad has already been studied using ML-based LULC and LST prediction. ([ScienceDirect][3])
+
+Chennai has also been extensively studied using remote sensing. Recent research has examined long-term LST and UHI dynamics in Chennai from 2001–2022, identifying persistent high-temperature areas associated with built-up and paved surfaces. ([ScienceDirect][9])
+
+More importantly, a 2026 study has already proposed a machine-learning-driven thermal-zonation framework for the Chennai Metropolitan Region using Landsat 9 and K-Means, classifying areas into low, moderate, high and extreme thermal zones. ([ScienceDirect][1])
+
+Another recent study has investigated Chennai and Kolkata using ML, GIS and SHAP to identify cold-island cores and thermal corridors. ([ScienceDirect][10])
+
+Therefore, if you choose Chennai, **you should not present the project as simply "creating a heat map of Chennai."** There is already recent work doing that.
+
+Instead, your project should explicitly focus on:
+
+> **heat exposure + population vulnerability + explainability + neighbourhood-level risk prioritization.**
+
+---
+
+# 3. Research Gap
+
+Based on the literature above, the research gap should be stated carefully.
+
+### What already exists
+
+| Existing approach                  | Already established?       |
+| ---------------------------------- | -------------------------- |
+| LST mapping using Landsat          | Yes                        |
+| NDVI/NDBI/NDWI-based heat analysis | Yes                        |
+| ML-based LST prediction            | Yes                        |
+| Random Forest/XGBoost for LST      | Yes                        |
+| XGBoost + SHAP                     | Yes                        |
+| UHI hotspot mapping                | Yes                        |
+| Indian-city UHI studies            | Yes                        |
+| Chennai UHI studies                | Yes                        |
+| Chennai ML thermal zonation        | **Yes — recent 2026 work** |
+| Heat vulnerability + demographics  | Yes, internationally       |
+
+The research gap therefore **cannot** simply be:
+
+> "There are not enough ML studies on urban heat."
+
+That would be difficult to defend.
+
+### A stronger gap
+
+Your project can investigate:
+
+> **How environmental exposure, urban form and population vulnerability interact at neighbourhood scale, and whether explainable ML can identify the factors and thresholds associated with high-risk areas in an Indian urban context.**
+
+That is a much more defensible research question.
+
+---
+
+# 4. Proposed Dataset
+
+The good news is that you can build the project **entirely from free/open datasets**.
+
+You don't need to purchase satellite imagery or proprietary GIS data.
+
+## Recommended dataset architecture
+
+```text
+                    ┌──────────────────────┐
+                    │ Landsat 8/9          │
+                    │ Land Surface Temp.   │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                         HEAT EXPOSURE
+                               │
+      ┌────────────────────────┼─────────────────────────┐
+      │                        │                         │
+      ▼                        ▼                         ▼
+ Sentinel-2               OpenStreetMap             DEM/Terrain
+ NDVI/NDWI                Roads/buildings           Elevation/slope
+ NDBI/LULC
+      │                        │                         │
+      └────────────────────────┼─────────────────────────┘
+                               │
+                               ▼
+                    URBAN ENVIRONMENT FEATURES
+                               │
+                               ▼
+                         ML MODEL + SHAP
+                               │
+                               ▼
+                     HEAT EXPOSURE MAP
+                               │
+                               +
+                               │
+                       Population data
+                               │
+                               ▼
+                    VULNERABILITY INDEX
+                               │
+                               ▼
+                    FINAL HEAT RISK MAP
+```
+
+This distinction is important.
+
+**Don't train a model to predict a "risk index" that you have mathematically created from the same variables used as model inputs.**
+
+Instead:
+
+### Stage 1
+
+Use ML to understand/predict **heat exposure/LST**.
+
+### Stage 2
+
+Use population vulnerability indicators to construct **vulnerability**.
+
+### Stage 3
+
+Combine exposure + vulnerability to obtain **risk**.
+
+That makes your methodology much more scientifically defensible.
+
+---
+
+# 5. Dataset 1 — Landsat 8/9
+
+### Purpose
+
+This should be your **primary heat-exposure dataset**.
+
+You can obtain:
+
+* Land Surface Temperature
+* Surface reflectance
+* Thermal information
+* Spectral bands
+
+From these you can derive:
+
+* LST
+* NDVI
+* NDBI
+* NDWI
+* other spectral indices
+
+USGS provides Landsat Collection 2 Level-2 surface reflectance and surface-temperature products globally. Landsat data have been available for download at **no cost** since 2008. ([USGS][2])
+
+The USGS specifically states that Landsat Level-2 surface-temperature products have **no restrictions on use** and asks users to cite the appropriate dataset. ([USGS][11])
+
+[USGS Landsat Data Access](https://www.usgs.gov/landsat-missions/landsat-data-access?utm_source=chatgpt.com)
+
+### Verdict
+
+**Free:** ✅
+**Academic use:** ✅
+**Publication:** ✅
+**Reliability:** ⭐⭐⭐⭐⭐
+**Suitable for your project:** **Absolutely**
+
+---
+
+# 6. Dataset 2 — Sentinel-2
+
+Use Sentinel-2 primarily for detailed land-cover and vegetation information.
+
+You can derive:
+
+* NDVI
+* NDWI
+* vegetation fraction
+* built-up indicators
+* land-cover features
+
+Copernicus states that Sentinel data are made available **free of charge**, including for scientific and commercial users. Sentinel-2 provides 13 spectral bands, including 10 m, 20 m and 60 m resolutions. ([Copernicus Data Space Ecosystem][12])
+
+[Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/?utm_source=chatgpt.com)
+
+### Verdict
+
+**Free:** ✅
+**Academic use:** ✅
+**Publication:** ✅ with attribution
+**Resolution:** Excellent
+**Suitable:** **Yes**
+
+---
+
+# 7. Dataset 3 — OpenStreetMap
+
+This is extremely useful for your **urban-form features**.
+
+You can derive:
+
+* Road density
+* Building density
+* Distance to roads
+* Distance to parks
+* Distance to water
+* POI density
+* potentially building-related indicators
+
+OpenStreetMap data are free and available under the Open Database License (ODbL). The OSM Foundation explicitly states that the data can be used for educational and academic purposes, but attribution is required. ([OpenStreetMap Foundation][13])
+
+[OpenStreetMap Foundation — Licence & Legal FAQ](https://osmfoundation.org/wiki/Licence/Licence_and_Legal_FAQ?utm_source=chatgpt.com)
+
+### Verdict
+
+**Free:** ✅
+**Academic use:** ✅
+**Publication:** ✅ with attribution
+**Suitable:** **Very useful**
+
+One important distinction:
+
+> **OSM data are free; OSM's public map-tile service has separate usage restrictions.**
+
+For analysis, use the actual OSM data rather than repeatedly scraping map tiles. ([OpenStreetMap Foundation][13])
+
+---
+
+# 8. Dataset 4 — WorldPop
+
+This is particularly important because it lets your project move from:
+
+> **Heat mapping**
+
+to:
+
+> **Heat vulnerability mapping**
+
+WorldPop provides gridded population datasets.
+
+You can potentially obtain:
+
+* Population density
+* Age structure
+* Sex structure
+* demographic indicators
+
+WorldPop states that its datasets are available under **CC BY 4.0**, allowing use, adaptation and redistribution with appropriate attribution. Some datasets derived from OSM/Microsoft sources have different licensing conditions, so the license for the exact dataset should be checked before publication. ([WorldPop][14])
+
+[WorldPop Data Portal](https://hub.worldpop.org/?utm_source=chatgpt.com)
+
+### Verdict
+
+**Free:** ✅
+**Academic use:** ✅
+**Publication:** ✅ with attribution
+**Suitable:** **Very important for your vulnerability component**
+
+---
+
+# 9. Dataset 5 — ERA5-Land
+
+This is useful for broader environmental conditions.
+
+Possible variables include:
+
+* Air temperature
+* Humidity-related variables
+* Soil variables
+* Surface variables
+
+ERA5-Land provides a global historical land-surface record from 1950 onward, and the dataset is licensed under **CC BY 4.0**. ([Climate Data Store][15])
+
+The current ERA5-Land time-series product is designed specifically for extracting long time series at locations and has a roughly 9 km underlying grid for the enhanced-resolution land dataset. ([Climate Data Store][16])
+
+[Copernicus Climate Data Store — ERA5-Land](https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?utm_source=chatgpt.com)
+
+### Verdict
+
+**Free:** ✅
+**Academic use:** ✅
+**Publication:** ✅ with attribution
+**Resolution for neighbourhood analysis:** ⚠️ Coarse
+
+Therefore:
+
+> **Do not use ERA5-Land as your main neighbourhood-scale predictor.**
+
+Use it as an **auxiliary climatic variable**.
+
+---
+
+# 10. Dataset 6 — DEM / Elevation
+
+Elevation and slope can influence local temperature and urban morphology.
+
+A DEM can provide:
+
+* Elevation
+* Slope
+* Aspect
+* Terrain characteristics
+
+You can obtain suitable global DEM products through open Earth-observation repositories.
+
+These are particularly useful because they add **physical terrain information** that isn't captured by NDVI/NDBI alone.
+
+---
+
+# 11. Recommended final dataset stack
+
+For your actual project, I would **not use every possible dataset**.
+
+Keep it manageable:
+
+| Dataset           | Main variables                 | Role            |
+| ----------------- | ------------------------------ | --------------- |
+| **Landsat 8/9**   | LST, spectral bands            | 🎯 Heat target  |
+| **Sentinel-2**    | NDVI, NDWI, land cover         | Environmental   |
+| **OpenStreetMap** | Roads, buildings, parks, water | Urban form      |
+| **WorldPop**      | Population/demographics        | Vulnerability   |
+| **DEM**           | Elevation, slope               | Terrain         |
+| **ERA5-Land**     | Air temperature, humidity      | Climate context |
+
+This is enough.
+
+---
+
+# 12. What will your ML dataset actually look like?
+
+After preprocessing, you don't want to feed raw satellite images directly into a basic ML model.
+
+You should create an analytical grid.
+
+For example:
+
+**250 m × 250 m**
+
+or
+
+**500 m × 500 m**
+
+Each grid cell becomes one observation.
+
+For example:
+
+| Grid |  LST | NDVI | NDBI | NDWI | Road Density | Building Density | Population | Elevation | Risk   |
+| ---- | ---: | ---: | ---: | ---: | -----------: | ---------------: | ---------: | --------: | ------ |
+| G001 | 41.2 | 0.18 | 0.62 | 0.03 |          5.2 |             0.71 |      3,420 |        18 | High   |
+| G002 | 36.8 | 0.51 | 0.21 | 0.14 |          2.1 |             0.32 |      1,120 |        23 | Low    |
+| G003 | 39.7 | 0.27 | 0.48 | 0.06 |          4.3 |             0.58 |      2,860 |        20 | Medium |
+
+Now you have a conventional ML dataset.
+
+---
+
+# 13. How I suggest defining "Risk"
+
+This is one of the most important methodological decisions.
+
+Don't simply say:
+
+> LST > 40°C = High Risk.
+
+That's too simplistic.
+
+Instead separate:
+
+### Exposure
+
+How hot is the location?
+
+**LST / LST anomaly / heat hotspot intensity**
+
+↓
+
+### Vulnerability
+
+Who lives there and how vulnerable are they?
+
+Possible variables:
+
+* Population density
+* Elderly population
+* Children
+* socioeconomic indicators, if reliably available
+* access to green spaces
+* access to cooling/health facilities
+
+↓
+
+### Risk
+
+Conceptually:
+
+**Risk = Exposure × Vulnerability**
+
+You can then classify the resulting spatial risk into:
+
+> Low
+> Moderate
+> High
+> Very High
+
+This makes the project much more meaningful.
+
+---
+
+# 14. Proposed ML methodology
+
+Your syllabus can be used naturally here.
+
+### Model 1 — Baseline
+
+**Linear Regression**
+
+Establish a simple baseline.
+
+### Model 2
+
+**Random Forest**
+
+Captures nonlinear relationships.
+
+### Model 3
+
+**Gradient Boosting / XGBoost**
+
+Likely your strongest tabular model.
+
+### Model 4 — Optional
+
+**Neural Network**
+
+Useful for comparison if the dataset is sufficiently large.
+
+### PCA
+
+Use PCA for:
+
+> dimensionality reduction / feature redundancy analysis
+
+rather than forcing it into the project.
+
+### Clustering
+
+Use:
+
+**K-Means**
+
+to identify urban heat-vulnerability profiles.
+
+For example:
+
+> Cluster 1 — Dense + hot + low vegetation
+> Cluster 2 — Moderate heat + high vegetation
+> Cluster 3 — Hot + highly populated
+> Cluster 4 — Low heat + low population
+
+That gives you an additional research dimension.
+
+### Explainability
+
+Use:
+
+**SHAP**
+
+to answer:
+
+> Which factors are actually driving the predictions?
+
+---
+
+# 15. References
+
+These are the references I would initially use for your literature survey. They are a mixture of recent research and authoritative dataset sources.
+
+### Research papers
+
+1. Mohammad, P., Goswami, A., Chauhan, S., & Nayak, S. (2022). **Machine learning algorithm based prediction of land use land cover and land surface temperature changes to characterize the surface urban heat island phenomena over Ahmedabad city, India.** *Urban Climate, 42*, 101116. DOI: 10.1016/j.uclim.2022.101116. ([ScienceDirect][3])
+
+2. Jiang, Y., et al. (2025). **The Impact of Spatiotemporal Effect and Relevant Factors on the Urban Thermal Environment Through the XGBoost-SHAP Model.** *Land, 14*(2), 394. DOI: 10.3390/land14020394. ([MDPI][5])
+
+3. An, Z., Peng, Y., & Liu, Y. (2025). **Unraveling the demographic disparity in urban heat risk through explainable machine learning: A case study of Chongqing, China.** *Urban Climate*, 102680. DOI: 10.1016/j.uclim.2025.102680. ([ScienceDirect][8])
+
+4. **How do built environment factors influence urban heat islands across local climate zones: Evidence from an interpretable XGBoost-SHAP model.** *Sustainable Cities and Society*, 136, 107078 (2026). DOI: 10.1016/j.scs.2025.107078. ([ScienceDirect][6])
+
+5. **Machine learning-based prediction of outdoor thermal comfort: Combining Bayesian optimization and the SHAP model.** *Building and Environment, 254*, 111301 (2024). DOI: 10.1016/j.buildenv.2024.111301. ([ScienceDirect][17])
+
+6. **Machine Learning-Driven Thermal Zonation Framework for Urban Heat Island Assessment Using Landsat 9 Thermal Infrared Data: A Case Study of Chennai Metropolitan Region.** *Procedia Computer Science, 282*, 1179–1188 (2026). DOI: 10.1016/j.procs.2026.05.159. ([ScienceDirect][1])
+
+7. **Smart cities, hot cities: ML-based forecasting of urban heat patterns.** *Discover Sustainability, 6*, 1260 (2025). ([Springer Link][4])
+
+8. **Landscape connectivity and impervious cover jointly shape pre-monsoon urban heat in Delhi: An XGBoost-SHAP assessment.** 2026. ([ScienceDirect][18])
+
+### Dataset references
+
+9. U.S. Geological Survey (USGS). **Landsat Collection 2 Level-2 Science Products.** ([USGS][2])
+
+10. U.S. Geological Survey (USGS). **Landsat Collection 2 Surface Temperature.** ([USGS][11])
+
+11. European Space Agency / Copernicus. **Copernicus Sentinel-2 Data.** ([Copernicus Data Space Ecosystem][12])
+
+12. Copernicus Climate Change Service / ECMWF. **ERA5-Land hourly data from 1950 to present.** DOI: 10.24381/cds.e2161bac. ([Climate Data Store][15])
+
+13. WorldPop. **Open Spatial Demographic Data.** ([WorldPop][14])
+
+14. OpenStreetMap Foundation. **OpenStreetMap Data Licence / ODbL.** ([OpenStreetMap Foundation][13])
+
+---
+
+## One important correction to our earlier plan
+
+After checking the **latest 2026 literature**, I would **not recommend choosing Chennai merely because it is an Indian city**.
+
+Why? Because there is now a **2026 Chennai-specific ML thermal-zonation paper using Landsat 9 + K-Means**, and another 2026 study uses Chennai in an ML/GIS heat-mitigation framework. ([ScienceDirect][1])
+
+That does **not** mean you cannot use Chennai. It means your research question has to be clearly different.
+
+### Therefore, my preferred formulation is:
+
+> **Predicting heat exposure is not the final contribution. The contribution is identifying which neighbourhoods are simultaneously hot and vulnerable, and explaining the environmental and demographic factors responsible for that vulnerability.**
+
+That gives you a much stronger foundation for a paper.
+
+If your college requires **one specific city in the title**, I would next compare **Chennai vs. Vellore vs. Coimbatore vs. Bengaluru vs. Hyderabad vs. Delhi** specifically on **dataset availability + existing literature saturation + novelty**, and then select the city where your project has the strongest defensible research gap.
+
+[1]: https://www.sciencedirect.com/science/article/pii/S1877050926015139?utm_source=chatgpt.com "Machine Learning-Driven Thermal Zonation Framework for Urban Heat Island Assessment Using Landsat 9 Thermal Infrared Data: A Case Study of Chennai Metropolitan Region - ScienceDirect"
+[2]: https://www.usgs.gov/landsat-missions/landsat-collection-2-level-2-science-products?utm_source=chatgpt.com "Landsat Collection 2 Level-2 Science Products | U.S. Geological Survey"
+[3]: https://www.sciencedirect.com/science/article/abs/pii/S2212095522000347?utm_source=chatgpt.com "Machine learning algorithm based prediction of land use land cover and land surface temperature changes to characterize the surface urban heat island phenomena over Ahmedabad city, India - ScienceDirect"
+[4]: https://link.springer.com/article/10.1007/s43621-025-02059-y?utm_source=chatgpt.com "Smart cities, hot cities: ML-based forecasting of urban heat patterns | Discover Sustainability | Springer Nature Link"
+[5]: https://www.mdpi.com/2073-445X/14/2/394?utm_source=chatgpt.com "The Impact of Spatiotemporal Effect and Relevant Factors on the Urban Thermal Environment Through the XGBoost-SHAP Model"
+[6]: https://www.sciencedirect.com/science/article/pii/S2210670725009485?utm_source=chatgpt.com "How do built environment factors influence urban heat islands across local climate zones? Evidence from an interpretable XGBoost-SHAP model - ScienceDirect"
+[7]: https://colab.ws/articles/10.1007%2Fs12145-024-01582-2?utm_source=chatgpt.com "Geospatial urban heat mapping with interpretable machine learning and deep learning: a case study in Hue City, Vietnam | CoLab"
+[8]: https://www.sciencedirect.com/science/article/abs/pii/S2212095525003967?utm_source=chatgpt.com "Unraveling the demographic disparity in urban heat risk through explainable machine learning: A case study of Chongqing, China - ScienceDirect"
+[9]: https://www.sciencedirect.com/science/article/pii/S2468601826000350?utm_source=chatgpt.com "Urban sustainability and disaster risk reduction: Assessing surface urban heat island intensity, thermal hotspots, and land surface temperature trends in Chennai, India - ScienceDirect"
+[10]: https://www.sciencedirect.com/science/article/abs/pii/S1474706526001385?utm_source=chatgpt.com "A novel Cold Island Core Network (CICN) approach for urban heat island mitigation using machine learning and GIS - ScienceDirect"
+[11]: https://www.usgs.gov/landsat-missions/landsat-collection-2-surface-temperature?utm_source=chatgpt.com "Landsat Collection 2 Surface Temperature | U.S. Geological Survey"
+[12]: https://dataspace.copernicus.eu/data-collections/copernicus-sentinel-missions/sentinel-2?utm_source=chatgpt.com "Sentinel-2 | Copernicus Data Space Ecosystem"
+[13]: https://osmfoundation.org/wiki/Licence/Licence_and_Legal_FAQ?utm_source=chatgpt.com "Licence/Licence and Legal FAQ - OpenStreetMap Foundation"
+[14]: https://www.worldpop.org/faq/?utm_source=chatgpt.com "faq - WorldPop"
+[15]: https://cds.climate.copernicus.eu/datasets/reanalysis-era5-land?tab=documentation&utm_source=chatgpt.com "ERA5-Land hourly data from 1950 to present"
+[16]: https://cds.climate.copernicus.eu/stac-browser/collections/reanalysis-era5-land-timeseries?utm_source=chatgpt.com "ERA5 Land hourly time-series data from 1950 to present"
+[17]: https://www.sciencedirect.com/science/article/pii/S0360132324001434?utm_source=chatgpt.com "Machine learning-based prediction of outdoor thermal comfort: Combining Bayesian optimization and the SHAP model - ScienceDirect"
+[18]: https://www.sciencedirect.com/science/article/pii/S1474706526004031?utm_source=chatgpt.com "Landscape connectivity and impervious cover jointly shape pre-monsoon urban heat in Delhi: an XGBoost-SHAP assessment - ScienceDirect"

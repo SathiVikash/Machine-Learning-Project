@@ -1,0 +1,142 @@
+ESSENTIAL FEATURES
+1. Interactive ward and neighbourhood explorer
+- Select Trichy or Chennai, then a ward or neighbourhood.
+- Click a map area to see its risk, recent observations, population exposure, and main contributing factors.
+- Filter by risk level, date, and data availability.
+- Show ward boundaries, nearby parks, water bodies, healthcare facilities, and cooling facilities when reliable data is available.
+Why: The map must lead to useful information and actions, not simply display coloured areas.
+
+2. Real heat conditions and data freshness
+- Show current weather observations or forecasts separately from satellite-derived land surface temperature.
+- Display when each dataset was last updated and where it came from.
+- Show unavailable, stale, or incomplete data explicitly.
+- Provide a timeline to compare available dates.
+Why: Officials must know whether they're looking at current conditions, a forecast, or historical satellite observations. These are not interchangeable.
+
+
+
+3. Ward risk profile with recommended action
+Each ward should have a readable summary containing:
+- Heat-risk category and score.
+- Why the area is at risk.
+- Who or what may be affected, based on available data.
+- Suggested interventions and their urgency.
+- Data confidence and the date of assessment.
+Why: A government official should be able to understand a ward's situation without interpreting five statistical charts.
+
+
+
+4. Action and intervention tracking
+Make the Emergency Action Dispatcher operational:
+- Create an action for a specific ward.
+- Assign it to a department or responsible officer.
+- Set priority, deadline, and status.
+- Track acknowledgement, progress, completion, and evidence.
+- Maintain an audit trail of who changed what.
+Example: A high-risk ward needs additional drinking-water points. An officer assigns the task to the relevant team, which updates its progress and marks it completed.
+Why: This is the biggest difference between a monitoring dashboard and a municipal decision-support application.
+
+Feature					Priority	Recommended behaviour
+City and ward selector			P0		Switch between Trichy and Chennai, then select a ward or grid cell.
+Interactive heat-risk map		P0		Select areas, view risk, inspect contributing data, and open a detailed profile.
+Ward risk profiles			P0		Explain the risk, vulnerability, exposed population, and recommended actions.
+Data freshness and provenance		P0		Show source, observation date, update time, and missing-data warnings.
+Ward priority ranking			P0		Rank wards and explain why each is prioritised.
+Explainable AI				P0		Show plain-language explanations alongside an optional technical SHAP view.
+What-if intervention simulator		P0		Compare a baseline with proposed changes using the existing model where valid.
+Heat Action Plan proposal builder	P0		Create, save, review, and submit proposed interventions.
+Approval and status tracking		P0		Track draft, submitted, approved, rejected, and completed proposals.
+Downloadable ward and action reports	P0		Export the assessment and proposed actions to PDF or CSV.
+Sample-data demonstration mode		P0		Demonstrate missing inputs and workflows without confusing samples with real observations.
+Trichy–Chennai comparison		P1		Compare comparable indicators and dates across both cities.
+Map drawing and custom-zone analysis	P1		Allow analysts to draw an area and analyse it when the underlying data supports it.
+Cost and resource planning		P1		Estimate intervention costs only where defensible cost data exists.
+P0 = must implement · P1 = implement if time permits
+
+How each important feature should behave
+A. Ward assessment: the most important screen
+When an official selects a ward, display five sections:
+1. Situation: Risk category, assessment date, land surface temperature estimate, and available weather context.
+2. People and vulnerability: Population exposure, sensitive age groups, available socioeconomic indicators, and access to healthcare.
+3. Why this ward? Leading heat and vulnerability factors, with explanations understandable to a non-specialist.
+4. Recommended interventions: Relevant Heat Action Plan measures with reasons, limitations, and expected benefits where estimable.
+5. Next step: A button to create a proposed intervention linked to the selected ward and its assessment.
+Avoid showing a vulnerability score of 94/100, for example, without explaining its scale, calculation, data date, and interpretation. A high score should not automatically be presented as proof of an emergency.
+
+B. Explainable AI: keep the science, change the presentation
+Your SHAP implementation is valuable. The problem is not the graph itself; it is relying on the graph as the entire user experience.
+The default explanation should answer:
+- What factors are influencing the prediction?
+- Which factors increase the predicted temperature, and which reduce it?
+- How much does each factor contribute relative to the model's baseline?
+- What practical intervention, if any, relates to those factors?
+- How uncertain is the prediction?
+Retain the SHAP waterfall plot and global feature-importance plots in an expandable Technical explanation section.
+One scientific distinction matters here: SHAP explains how a model arrived at a prediction; it does not prove that changing a feature will produce the same temperature change in the real world. Intervention effects should be estimated separately and clearly labelled.
+
+C. Real-Time Area Inspector: turn it into a scenario workspace
+The existing sliders for NDVI, NDBI, building density, and distance to water can remain, but they should not be the primary controls.
+
+D. Proposal builder: connect the analysis to an outcome
+An official should be able to select Create proposal from a ward assessment and fill in:
+- Selected city, ward, and assessment reference.
+- Proposed intervention and justification.
+- Priority and intended beneficiaries.
+- Estimated cost and resource requirements, if available.
+- Expected outcome and measurement method.
+- Supporting map, evidence, and model explanation.
+- Approval status and reviewer comments.
+For your first working version, this can be a saved proposal with a simple approval simulation using local application records or a database. It does not require integrating with a real government dispatch system.
+Use clear states such as Draft, Submitted, Approved, Rejected, and Completed. Record who changed the status and when. A proposal should not alter the original scientific assessment merely because it has been approved.
+
+How to implement this without rebuilding everything
+1. Foundation
+Make existing data trustworthy and navigable
+- Audit which datasets actually load in dashboard.py.
+- Ensure city, ward, and grid selections stay synchronised.
+- Add source dates, missing-data indicators, and a clear real-data/sample-data distinction.
+- Link map selections to ward rankings and existing model outputs.
+Completion test: selecting a ward changes every relevant panel to show that ward's data.
+
+2. Usability
+Build the ward assessment experience
+- Add a detailed ward profile.
+- Translate model outputs into plain-language explanations.
+- Retain technical SHAP visualisations as optional details.
+- Make rankings sortable and explain their underlying indicators.
+Completion test: an official can explain why a ward is prioritised without interpreting raw ML charts.
+
+3. Interaction
+Connect scenarios to the existing models
+- Implement baseline-versus-scenario comparisons.
+- Validate the mapping between intervention targets and model features.
+- Show actual prediction outputs, assumptions, and limitations.
+- Save scenarios for comparison and reuse.
+Completion test: a changed input produces a reproducible, model-backed result, not a hardcoded chart.
+
+4.Workflow
+Add persistent action proposals
+- Create, save, edit, submit, and review interventions.
+- Store records in a database.
+- Add proposal statuses, reviewer comments, and a history of changes.
+- Generate a report from the saved assessment and proposal.
+Completion test: a proposal remains available after the dashboard restarts.
+
+5.Validation
+Prepare the complete demonstration
+- Test both cities and representative wards.
+- Test missing data, invalid inputs, and failed model predictions.
+- Check that sample records cannot be mistaken for actual observations.
+- Demonstrate the full assessment-to-proposal workflow.
+Completion test: the system can demonstrate a complete scenario honestly, including its limitations.
+
+New: src/scenario_service.py	Convert supported intervention assumptions into valid model inputs and compare results
+New: src/proposal_service.py	Create, validate, and manage proposed Heat Action Plan interventions
+New: src/data_status.py		Track dataset sources, timestamps, coverage, and availability
+New: application database	Store proposals, review comments, workflow states, and audit records
+
+Three scientific checks I would not skip
+1. Comparable risk scores: Ensure exposure and vulnerability are on compatible, documented scales before applying your existing formula, \(\mathrm{HRI}=\sqrt{E\times V}\). Explain how the scores are normalised and what the final index means.
+2. Population at risk: A vulnerability score or total population in a ward is not automatically a count of people at risk. Define the estimation method, avoid double counting across grid cells, and distinguish exposure from vulnerability.
+3. Spatial validation and scenario validity: Retain your spatial block cross-validation. Do not interpret a high validation \(R^2\) as proof of real-time accuracy, and do not extrapolate the model beyond its training data without checking the input ranges and regional applicability.
+

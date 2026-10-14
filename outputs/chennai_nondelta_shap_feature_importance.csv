@@ -1,0 +1,13 @@
+Feature,Mean_Abs_SHAP_degC
+Building_Density_pct,2.1807
+Dist_to_Park_m,0.9316
+NDWI,0.902
+NDBI,0.8257
+NDVI,0.3331
+Road_Density_km_km2,0.196
+Dist_to_Water_m,0.0431
+Albedo,0.0307
+Elevation_m,0.0207
+Relative_Humidity_pct,0.011
+Slope_deg,0.0061
+Air_Temp_ERA5,0.0059
