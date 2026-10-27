@@ -87,16 +87,36 @@ To prevent spatial autocorrelation data leakage, models were evaluated using **S
 
 ## 5. Platform Architecture & Features
 
-The **Municipal Heat Watch** interface has evolved into a complete **municipal decision-support and workflow platform**:
-- **Executive Summary:** Live 5-deck KPI cards, priority rankings table, and synchronized active ward card.
-- **Ward Risk Profile & Assessment:** The core decision sheet featuring 5 distinct operational sections: Situation, People & Vulnerability, Non-Technical Physical Drivers ("Why this Ward?"), Recommended Interventions, and a one-click Next Step proposal builder.
-- **Spatial Heat & Risk Map:** 100% free Leaflet choropleth integration with seamless toggle between **OpenStreetMap** and **Esri World Imagery Satellite** (zero watermarks or API keys required), fully synchronized with ward selection.
-- **Scenario Workspace (What-If Simulator):** Exploratory model-based scenario estimate; not a validated causal cooling forecast (`Cool Roofs`, `Urban Forestry`, `De-Paving`, `Water Canal Restoration`, `Custom`) with domain boundary clamping and assumptions logging.
-- **Explainable AI (XAI & SHAP):** Non-specialist plain-language explanations (heating vs cooling drivers) with an expandable technical inspector containing live SHAP Waterfall plots, global importance rankings, and dependence thresholds.
-- **HAP Proposals & Review Tracker:** Persistent local SQLite database (`data/app_database.db`) storing proposals, state transitions (`Draft` → `Submitted` → `Approved` → `Completed`), department assignments, reviewer remarks, and persistent action audit logs.
-- **Data Freshness & Provenance:** Transparent sensor lineage (Landsat-9, Sentinel-2, ERA5, WorldPop, OSM, Open-Meteo), update timestamps, and explicit sample demonstration mode tagging.
-- **Trichy vs Chennai Comparative Studio:** Regional contrasts between inland agricultural delta corridors and dense coastal metropolitan heat corridors.
-- **Live Weather API Ingestion:** Real-time atmospheric weather-model streaming from Open-Meteo API (NOAA GFS / DWD ICON blend) with step-by-step guidance on external weather API ingestion.
+The **Municipal Heat Watch** platform is structured into **7 core municipal workflow modules** with an optimized sideways sidebar navigation:
+
+- **📊 Dashboard:**
+  - **5-Deck KPI Telemetry:** Total Surveyed Wards, Mean/Peak Surface Temperature (°C), Priority Action Wards ($\text{WHRI} > 0.50$), Spatial Block 5-Fold Model $R^2$ (Cross-Validated = 0.876), and Exposed Population (formatted cleanly in `k` up to 900k, and `M` above 900k without double-counting).
+  - **Scrollable Administrative Ward Rankings Table:** Fixed 8-row viewport table with instant real-time search filter displaying Ward ID, Name, Priority Tier, composite HRI, Mean LST (°C), and population density (/km²).
+  - **Synchronized Active Ward Selector:** Aligned right above the active ward assessment header adjacent to the table for intuitive navigation.
+  - **Ward-Specific Live Weather Feed (Open-Meteo):** Dynamically extracts the exact centroid coordinates of the selected ward and queries the Open-Meteo atmospheric model (NOAA GFS / DWD ICON blend) displaying Ambient Air Temperature, Relative Humidity, Apparent Heat Index, and Wind Speed in real time.
+- **📋 Ward Risk Profile & Assessment:**
+  - **Dynamic Graphical Visualizations:** Responsive horizontal bar charts updating live for *Thermal Radiation Context (Peak Pixel vs. Ward Mean vs. City Baseline)*, *Physical Environmental Covariates (Water Distance, NDBI, NDVI, Building Density)*, and *People & Socio-Demographic Vulnerability (Age Cohorts & Fragility Breakdown)*.
+  - **Why This Ward?**: Plain-language physical attribution cards classifying local heating drivers vs. cooling buffers.
+  - **Recommended Heat Action Plan (HAP) Measures:** Eye-catching, high-contrast intervention container highlighting priority municipal protocols (cool roofs, hydration kiosks, labor shade advisories).
+  - **1-Click Proposal Dispatch:** Pre-populates ward context into an administrative form to submit actionable proposals directly into the SQLite database.
+- **🗺️ Spatial Heat & Risk Map:**
+  - **Interactive Leaflet Choropleth Map:** Color-coding all administrative divisions into 5 priority tiers (Extreme Priority Red, Very High Orange, High Amber, Moderate Green, Low Blue) with rich hover tooltips.
+  - **Basemap Style Switcher:** Seamless toggle between **OpenStreetMap** (Clean Cartographic) and **Esri World Imagery** (High-Resolution Satellite) without third-party API keys or watermarks.
+- **🔮 Scenario Workspace (Simulation & Impact Modeling):**
+  - **Mode A (Ward Cooling Interventions):** What-if simulator with human-relatable inputs (houses coated: 100–5,000; native trees planted: 250–10,000; m² de-paved: 5,000–100,000; canal meters restored: 200–4,000; % coverage), side-by-side Matplotlib comparison graphs (LST & HRI), and Model Domain Check boundary validation.
+  - **Mode B (New Building Construction Impact Simulator):** Architectural parameter simulator (sq. ft footprint, floors, residents, parking format, basement excavation, green building mitigations) predicting localized surface heat contribution, stormwater runoff multipliers, dual-panel comparative charts, and actionable municipal by-law recommendations.
+- **🧠 Explainable AI (XAI & SHAP):**
+  - **Human-Readable Common-Man Terms:** ML features translated into everyday language (e.g., `Building Footprint (% Ground Covered)`, `Green Vegetation & Tree Canopy (NDVI)`, `Distance to Water Channel (meters)`).
+  - **Waterfall Interpretation Guide:** Clear instructional box explaining the city baseline ($E[f(x)]$), red heating bars (+), blue cooling bars (-), and final predicted ward temperature ($f(x)$).
+  - **Local SHAP Waterfall Plot:** Fast TreeExplainer (<10ms) showing exact degree contributions for the selected ward.
+  - **Dynamic Ward Takeaways:** Plain-language summary explaining primary local heating drivers and recommended municipal cooling levers.
+  - **Global Insights:** Global Feature Importance bar chart and Beeswarm plot with non-technical captions explaining city-wide tipping points.
+- **📝 HAP Proposals & Review Tracker:**
+  - **Persistent SQLite Database (`data/app_database.db`):** Stores civic proposals, budgets, target departments, and review statuses across server restarts.
+  - **Server-Side State Machine:** Enforces valid lifecycle state transitions (`Draft` $\to$ `Submitted` $\to$ `Under Review` $\to$ `Approved` $\to$ `Completed` / `Rejected`).
+  - **Security & Auditability:** Built-in Stored XSS escaping, CSV formula injection sanitization, and chronological audit logging.
+- **🔄 Data Freshness & Provenance:**
+  - Multi-source sensor lineage audit trail (Landsat-9, Sentinel-2, ERA5, WorldPop, OSM, Open-Meteo), calibration verification, and operational scope boundaries.
 
 ---
 
@@ -132,9 +152,11 @@ Projects/
 │   └── test_municipal_services.py # Automated test suite for data status, scenario clamping & proposals
 ├── notebooks/
 │   └── academic_pipeline_walkthrough.py  # Interactive cell-by-cell notebook script
+├── Data in system.md         # Operational guide to Spatial Block R², HRI & Tab-by-Tab Graph Mappings
 ├── run_dashboard.bat         # Windows batch launcher
 ├── run_dashboard.ps1         # PowerShell launcher
 ├── requirements.txt
+├── FEATURE_DOCUMENTATION_AND_OPERATIONS_MANUAL.md
 └── README.md
 ```
 
@@ -176,10 +198,12 @@ python -c "import tests.test_municipal_services as t; t.test_data_status_tracker
 
 ---
 
-## 8. Detailed System Documentation & Strategic Operations Manual
+## 8. Detailed System Documentation & Operational Guides
 
-For an in-depth breakdown of the system's strategic rationale (**What, Why, How, For Whom, and the 5-Whys Root-Cause Analysis**), spatial boundaries, and step-by-step user manual, see:  
-👉 **[FEATURE_DOCUMENTATION_AND_OPERATIONS_MANUAL.md](FEATURE_DOCUMENTATION_AND_OPERATIONS_MANUAL.md)**
+- **Strategic Operations Manual & 5-Whys Analysis:**  
+  👉 **[FEATURE_DOCUMENTATION_AND_OPERATIONS_MANUAL.md](FEATURE_DOCUMENTATION_AND_OPERATIONS_MANUAL.md)**
+- **System Metrics & Tab-by-Tab Graph Interpretations Guide:**  
+  👉 **[Data in system.md](Data%20in%20system.md)** (Explains Spatial Block 5-Fold $R^2$, Heat Risk Index (HRI) decoupled formulation, and complete mapping of all graphs across every tab).
 
 ---
 

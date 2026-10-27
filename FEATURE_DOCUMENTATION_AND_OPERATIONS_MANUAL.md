@@ -70,99 +70,194 @@ To achieve absolute conceptual clarity, we examine the problem through the **5-W
 
 ## 4. Detailed Feature-by-Feature Operational Manual
 
-### Global Top Brand Header & Provenance Status
-- **Location:** Top row of every screen.
+### Global Navigation & Header Architecture
+- **Sideways Navigation Sidebar:**
+  - Optimized vertical layout located in the sidebar for intuitive one-hand navigation.
+  - Streamlined spacing with clean uppercase section header (`NAVIGATION MENU`).
+  - Elimination of duplicate widget labels using dedicated CSS selector isolation (`div[data-testid="stRadio"] > label { display: none !important; }`).
+- **Global Top Brand Header & Operational Status:**
+  - **Platform Branding:** "Municipal Heat Watch - Spatial Screening System & Decision Support".
+  - **City Corporation Switcher:** Instant toggle between Tiruchirappalli (Cauvery Delta) and Chennai (Coastal Metro), updating spatial extents, regional ML inference models, and ward risk rankings dynamically.
+  - **Model Operational Badge:** Active surveillance indicator showing real-time ML inference readiness. (Extraneous static demo badges such as Level 2 Heat Screening have been removed for operational clarity).
+  - **1-Click CSV Export:** Generates an immediate download of the active city's ward risk assessment dataset with formula injection sanitization applied.
+
+---
+
+### Tab 1: Dashboard (`📊 Dashboard`)
+- **Core Purpose:** High-level operational command center for municipal executives, disaster coordinators, and city engineers.
+- **Components & Layout:**
+  1. **5 KPI Telemetry Deck:**
+     - *Total Surveyed Wards:* Statutory and peri-urban wards analyzed (65 in Tiruchirappalli, 100 in Chennai).
+     - *Mean & Peak Surface Temperature:* Satellite-observed radiometric surface temperatures (°C).
+     - *Priority Action Wards:* Wards exceeding the municipal emergency threshold ($\text{WHRI} > 0.50$).
+     - *Spatial Block 5-Fold Model $R^2$:* Cross-validated spatial predictive accuracy ($R^2 = 0.876$ for Trichy, $R^2 = 0.950$ for Chennai).
+     - *Exposed Population:* Total population residing in priority heat hazard zones, formatted cleanly using `k` up to 900k (e.g. `850k`) and transitioning seamlessly to `M` above 900k (e.g. `1.25M`) without double-counting.
+  2. **Administrative Ward Rankings Table:**
+     - Scrollable, fixed-height 8-row viewport table displaying Ward ID, Name, Priority Tier, composite HRI, Mean LST (°C), and population density (/km²).
+     - Instant real-time text filter and search bar for quick ward retrieval.
+  3. **Synchronized Active Ward Selector:**
+     - Positioned immediately above the active ward assessment header (e.g., right above "Tiruch Ward 23") adjacent to the table, creating a seamless visual hierarchy between selection and deep-dive analytics.
+  4. **Active Ward Quick Assessment Panel:**
+     - Displays the selected ward's vital statistics (Rank, Priority Tier, WHRI score, Population at Risk, Mean LST).
+  5. **Ward-Specific Live Weather Feed (Open-Meteo Integration):**
+     - Automatically resolves the exact geographic centroid coordinates of the selected ward and queries the Open-Meteo atmospheric model (NOAA GFS / DWD ICON blend) in real time.
+     - Displays:
+       - **Dry-Bulb Air Temperature (°C):** Current ambient 2m air temperature.
+       - **Relative Humidity (%):** Atmospheric moisture content.
+       - **Apparent Heat Index (°C):** Physiological "feels-like" temperature combining heat and humidity.
+       - **Surface Wind Speed (km/h):** Natural convective ventilation.
+     - Consolidates ambient live weather directly into the dashboard, eliminating the need for a separate live tab.
+
+---
+
+### Tab 2: Ward Risk Profile & Assessment (`📋 Ward Risk Profile`)
+- **Core Purpose:** Deep-dive diagnostic profile enabling urban planners to understand *why* a specific ward is hot and *who* is affected.
+- **Dynamic Graphical Visualizations:**
+  1. **Thermal Radiation Context (Landsat-9):**
+     - Horizontal bar chart comparing Peak Pixel LST, Ward Mean LST, and Regional City Baseline (°C) to identify localized micro-hotspots.
+  2. **Physical Environmental Covariates:**
+     - Horizontal bar chart displaying Distance to Water (km), Built-Up Index (NDBI x100), Tree Canopy (NDVI x100), and Ground Building Density (%).
+  3. **People & Socio-Demographic Vulnerability:**
+     - *Demographic Cohorts Graph:* Dynamic horizontal bar chart breaking down the resident population into general cohort, seniors (>65), and young children (<5) with headcounts and percentages.
+     - *Socio-Demographic Vulnerability Factors Graph:* Dynamic horizontal bar chart depicting Composite Vulnerability weight, Child Ratio, Senior Ratio, and Low-Income Household percentage.
+     - *Live Ward Reactivity:* All graphs dynamically update and re-render in real time whenever the user switches the active ward.
+  4. **Why This Ward? (Key Thermal & Vulnerability Drivers):**
+     - Structured physical attribution cards categorizing local factors into heating drivers vs. cooling buffers.
+  5. **Recommended Heat Action Plan (HAP) Measures:**
+     - Elevated, high-contrast, eye-catching action container highlighting priority municipal protocols:
+       - Cool roof reflective coatings for low-income informal housing.
+       - Ward-level drinking water kiosks and Oral Rehydration Salts (ORS) distribution centers.
+       - Outdoor labor shade regulations and afternoon work shifts during peak solar hours.
+       - Emergency cool shelter activations in community halls and primary schools.
+  6. **Formalize Proposal Workflow:**
+     - Pre-populates ward context into an administrative form to submit actionable proposals directly into the persistent SQLite database.
+
+---
+
+### Tab 3: Spatial Heat & Risk Map (`🗺️ Spatial Heat Map`)
+- **Core Purpose:** Interactive geospatial mapping for territorial spatial screening and zone-wide resource allocation.
 - **Components:**
-  - Platform branding with weather-model feed and demonstration mode badges.
-  - **City Corporation Switcher:** Toggles between Tiruchirappalli and Chennai. Updates coordinate extents, loads regional models, and recalculates ward rankings.
-  - **Weather-Model-Based Conditions:** Ingests atmospheric model conditions (2m dry-bulb temperature, relative humidity, wind speed, and apparent heat index) from Open-Meteo (NOAA GFS / DWD ICON blend) displaying valid time and retrieval time.
-  - **1-Click CSV Export:** Downloads the active city's ward assessment dataset with formula injection sanitization applied.
+  1. **Interactive GeoJSON Choropleth Map:**
+     - High-performance Leaflet choropleth map color-coding all administrative wards into 5 priority tiers:
+       - 🔴 **Extreme Priority:** $\text{HRI} \ge 0.70$ (Red)
+       - 🟠 **Very High:** $0.55 \le \text{HRI} < 0.70$ (Orange)
+       - 🟡 **High:** $0.40 \le \text{HRI} < 0.55$ (Amber)
+       - 🟢 **Moderate:** $0.25 \le \text{HRI} < 0.40$ (Green)
+       - 🔵 **Low:** $\text{HRI} < 0.25$ (Blue)
+     - Interactive hover tooltips displaying Ward ID, Ward Name, Priority Rank, Risk Tier, Mean LST (°C), and WHRI score.
+  2. **Basemap Style Switcher:**
+     - Seamless toggle between **OpenStreetMap** (Clean, Cartographic) and **Esri World Imagery** (High-Resolution Satellite Photography) without requiring third-party API keys or leaving map watermarks.
 
 ---
 
-### Tab 1: Executive Summary & Administrative Ranking
+### Tab 4: Scenario Workspace (`🔮 Scenario Simulation`)
+- **Core Purpose:** Predictive sandbox allowing municipal planners and private developers to simulate cooling interventions and evaluate the microclimatic impact of new construction.
+- **Features Two Interactive Simulation Modes:**
+
+#### Mode A: Ward Cooling Interventions (HAP)
+- *Intuitive Real-World User Inputs:* Replaces abstract mathematical multipliers with tangible civic units:
+  - **High-Albedo Cool Roof Coating:** Slider for Number of Houses/Buildings Coated (100 to 5,000 houses) calculating treated roof area in m² and solar reflectance uplift.
+  - **Miyawaki Forest & Tree Canopy:** Slider for Native Trees/Saplings Planted (250 to 10,000 trees) calculating added canopy hectares and evapotranspirative cooling.
+  - **Permeable De-paving:** Slider for Impervious Concrete/Asphalt De-paved (5,000 to 100,000 m²) calculating soil moisture recovery.
+  - **Water Corridor Restoration:** Slider for Canal/Wetland Buffer Restored (200 to 4,000 linear meters) calculating riparian thermal buffer expansion.
+  - **Comprehensive HAP:** Municipal Resilience Coverage slider (10% to 100% ward footprint).
+- *Dual-Bar Evaluation Graph:*
+  - Side-by-side Matplotlib chart comparing **Baseline vs. Scenario** for Surface LST (°C) and Heat Risk Index (HRI).
+  - Dynamic delta callout badges showing cooling impact ($\Delta \text{LST}$ in °C and $\Delta \text{HRI}$).
+- *Model Domain Check Callout:*
+  - Real-time sanity check confirming whether simulated inputs remain within observed empirical satellite boundaries or if boundary clamping was applied.
+
+#### Mode B: New Building Construction Impact Simulator (Brand New Feature)
+- *Microclimate & Environmental Impact Analysis:* Models how a proposed residential, commercial, or industrial building will alter the local thermal environment and urban hydrology.
+- *Site & Architectural Inputs:*
+  - **Ground Plot Footprint (sq. ft):** Slider from 2,000 to 100,000 sq. ft representing land coverage.
+  - **Number of Floors (Stories):** Slider from 1 to 30 stories calculating total built-up floor area.
+  - **Approximate Residents / Occupants:** Slider from 10 to 2,000 people calculating human density and internal heat load.
+  - **Parking Location:** Radio toggle between *Inside Building / Underground* (no asphalt surface penalty) vs. *Surface Asphalt Lot* (+1.2°C surface heat penalty, +25% runoff penalty).
+  - **Basement Excavation:** Radio toggle between *Yes* (minor thermal mass buffering) vs. *No*.
+- *Green Building Mitigation Toggles:*
+  - High-Albedo Cool Roof Coating (SRI $\ge$ 82, -1.8°C roof cooling).
+  - Permeable Interlocking Pavers on Driveways (-35% stormwater runoff).
+  - 20% Native Tree Buffer & Canopy Setback (-0.9°C microclimate buffer).
+  - High-Efficiency HVAC with Heat Recovery / Thermal Storage (-40% waste heat rejection).
+- *Dual-Panel Comparison Charts:*
+  - **Chart 1 (Local Surface Heat Impact):** Three-bar comparison displaying **Ward Baseline LST**, **Standard Unmitigated Construction**, and **Green-Mitigated Construction**.
+  - **Chart 2 (Environmental Stress Index):** Three-dimensional comparison of **Stormwater Runoff Volume**, **Impervious Land Fraction**, and **HVAC Waste Heat Rejection** under unmitigated vs. mitigated designs.
+- *Environmental Analysis & Municipal Measures:*
+  - Plain-language environmental brief estimating net temperature delta and stormwater impact.
+  - Actionable municipal planning by-law conditions (e.g. mandatory cool-roof coating on flat roofs, mandatory rainwater harvesting percolation pits, minimum 15% green setback buffer).
+
+---
+
+### Tab 5: Explainable AI (`🧠 Explainable AI (SHAP)`)
+- **Core Purpose:** Demystifies the machine learning model for non-technical stakeholders, municipal leaders, and common citizens.
+- **Key Features:**
+  1. **Common-Man Readable Variable Names:**
+     - Translates raw technical feature names into clear, intuitive terminology:
+       - `Building_Density_pct` $\to$ **Building Footprint (% Ground Covered)**
+       - `NDVI` $\to$ **Green Vegetation & Tree Canopy (NDVI)**
+       - `NDBI` $\to$ **Built-Up Concrete & Asphalt Index (NDBI)**
+       - `Albedo` $\to$ **Surface Sun Reflectance (Albedo)**
+       - `Dist_to_Water_m` $\to$ **Distance to Water Channel (meters)**
+       - `Elevation_m` $\to$ **Ground Elevation (meters)**
+       - `Road_Density` $\to$ **Road & Pavement Network Density**
+  2. **Step-by-Step Graph Interpretation Guide:**
+     - Clear instructional callout box explaining:
+       - **Baseline Starting Point ($E[f(x)]$):** The city-wide average baseline temperature across all surveyed wards.
+       - **Red Bars (+):** Local factors that heat the ward up above city baseline (e.g. dense concrete, high building footprint, low vegetation).
+       - **Blue Bars (-):** Local factors that cool the ward down below city baseline (e.g. nearby river channels, high tree canopy, high reflective surfaces).
+       - **Final Result ($f(x)$):** The model's final predicted surface temperature for that specific ward.
+  3. **Local SHAP Waterfall Plot:**
+     - Sub-10ms TreeExplainer computation displaying exact degree contributions for the active ward.
+  4. **Dynamic Ward Takeaways:**
+     - Plain-language summary card identifying the primary local heating drivers and recommended municipal cooling levers.
+  5. **Global Model Insights:**
+     - Global Mean Feature Importance bar chart and Beeswarm distribution plot with non-technical captions explaining city-wide microclimate tipping points.
+
+---
+
+### Tab 6: HAP Proposals & Review Tracker (`📝 HAP Action Tracker`)
+- **Core Purpose:** Closes the loop between spatial AI analysis and administrative governance.
 - **Components:**
-  1. **5 KPI Metric Deck:** Surveyed Wards, Mean/Peak Surface Temperature, Emergency Priority Wards, Spatial Model $R^2$ (Cross-Validated), and Aggregated Exposed Population (avoiding grid double-counting).
-  2. **Administrative Ward Risk Rankings Table:** Searchable rankings table (Rank #1 = highest risk) displaying Ward ID, Name, Risk Tier pill, composite HRI, mean LST, and population density. Rendered with clean unindented HTML to prevent Markdown code block artifacts.
-  3. **Active Ward Quick Assessment Card:** Synchronized card showing the selected ward's vital statistics and top non-causal statistical drivers.
+  1. **Persistent SQLite Database (`src/proposal_service.py`):**
+     - Stores civic proposals, budgets, target departments, and review statuses across server restarts in `data/app_database.db`.
+  2. **Server-Side State Machine:**
+     - Enforces rigorous administrative lifecycle transitions:  
+       `Draft` $\to$ `Submitted` $\to$ `Under Review` $\to$ `Approved` $\to$ `Completed` / `Rejected`.
+     - Terminal state enforcement prevents unauthorized tampering with completed proposals.
+  3. **Reviewer Action Panel:**
+     - Administrative interface enabling municipal officers to review proposals, approve budgets, and append official remarks.
+  4. **Security & Data Sanitization:**
+     - Built-in Stored XSS escaping (HTML entity encoding) and CSV Formula Injection sanitization (escaping `=`, `+`, `-`, `@`).
+  5. **Chronological Audit Trail:**
+     - Persistent audit log recording timestamps, reviewer roles, remarks, and state transitions.
 
 ---
 
-### Tab 2: Ward Risk Profile & Assessment (The Core Screen)
-- **Structure (5 Dedicated Sections):**
-  1. **Section 1 (Situation):** Risk Category, Priority Rank, Satellite LST, Decoupled HRI score, and data confidence rating.
-  2. **Section 2 (People & Socio-Demographic Vulnerability):** Estimated residents, sensitive age groups (children $<5$ and elderly $>65$), low-income household ratio, and healthcare distance.
-  3. **Section 3 (Why This Ward? - Non-Causal XAI):** Explains model-associated factors relative to the city baseline:
-     - *Heating Drivers:* Identifies statistical associations with high built-up density and canopy deficit.
-     - *Cooling Buffers:* Identifies statistical associations with vegetation and river/canal proximity.
-     - *Caveat:* Explicitly notes that SHAP measures model attribution, not physical causality.
-  4. **Section 4 (Recommended Heat Action Plan Measures):** Prioritized protocols aligned with risk tiers (e.g. hydration kiosks, cool roof coatings, outdoor labor rest advisories per NDMA 2019 guidelines).
-  5. **Section 5 (Next Step CTA: Formalize Proposal):** Form that pre-populates ward context and submits a prototype proposal into the SQLite database.
-
----
-
-### Tab 3: Spatial Heat & Risk Map
+### Tab 7: Data Freshness & Provenance (`🔄 Data Provenance`)
+- **Core Purpose:** Transparency and scientific traceability for researchers, auditors, and municipal oversight committees.
 - **Components:**
-  1. **Layer Display:** Toggle between Ward Heat Risk Index (WHRI), Mean LST (°C), and Vulnerability Score.
-  2. **Free Basemap Switcher:** Toggle between **OpenStreetMap** (`© OpenStreetMap contributors`) and **Esri World Imagery** (`Tiles © Esri`). All tile provider attributions are visible and compliant with licensing terms.
-  3. **Interactive GeoJSON Layer:** Color-coded choropleths showing all municipal wards with interactive tooltips. Active ward is highlighted with dynamic styling.
+  1. **Multi-Source Lineage Cards:**
+     - Full documentation of satellite platforms (Landsat-9, Sentinel-2), numerical models (ERA5, Open-Meteo), and socio-demographic databases (WorldPop 2024).
+  2. **Audit Verification:**
+     - Calibration formulas, spatial resolutions, cloud-cover filtering, and update latencies.
+  3. **Operational Scope Clarification:**
+     - Notes that real-time Open-Meteo weather feeds provide ambient situational context and are physically decoupled from the static spatial satellite regression models.
 
 ---
 
-### Tab 4: Scenario Workspace (What-If Intervention Simulator)
-- **Components:**
-  1. **Pre-Packaged Municipal Interventions:** `Cool Roofs`, `Miyawaki Urban Forestry`, `Permeable De-paving`, `Canal Restoration`, and `Custom`.
-  2. **Domain Boundary Clamping:** Strictly enforces physical bounds defined in `src/config.py` (e.g. Albedo clamped to $[0.05, 0.55]$, NDVI to $[-0.20, 0.85]$) to prevent unscientific extrapolations.
-  3. **Model Evaluation:** Compares baseline vs scenario to predict $\Delta \text{LST}$ (°C cooling) and updated Heat Risk Index. Logs physical model assumptions and limitations.
+## 5. Companion Documentation & Knowledge Base
+
+For comprehensive mathematical foundations, metric definitions, and visual mapping guides, refer to:
+- **[Data in system.md](file:///c:/Users/sathi/.antigravity-ide/Projects/Data%20in%20system.md)** (or [Data in system](file:///c:/Users/sathi/.antigravity-ide/Projects/Data%20in%20system)):
+  - **Section 1: Spatial Block 5-Fold Cross-Validation $R^2$:** Explains geographic block partitioning to eliminate spatial autocorrelation data leakage.
+  - **Section 2: Heat Risk Index (HRI):** Explains geometric decoupling ($\text{HRI} = \sqrt{E \times V}$), vulnerability weighting, and why additive sums fail in civic operations.
+  - **Section 3: System Data Summary Matrix:** Details all 7 primary data layers, sources, resolutions, and update frequencies.
+  - **Section 4: Tab-by-Tab Graph Interpretations & Mapping Guide:** Complete, structured breakdown mapping all 11+ graphs across Tabs 1 through 7, explaining their variables, how to read them, and civic action takeaways.
 
 ---
 
-### Tab 5: Explainable AI (XAI & SHAP)
-- **Components:**
-  1. **Non-Technical Attribution (Default View):** Plain-language factor impact cards categorizing variables into heating drivers vs cooling mitigators relative to baseline.
-  2. **Expandable Technical Accordion:** Live local SHAP Waterfall plot (<10ms), global feature importance bar plot, beeswarm distribution, and non-linear dependence tipping points ($\text{NDVI} > 0.32$).
-
----
-
-### Tab 6: HAP Proposals & Review Tracker (Persistent SQLite Database)
-- **Components:**
-  1. **Persistent SQLite Database (`src/proposal_service.py`):** Stores records across application restarts in `data/app_database.db`.
-  2. **Server-Side State Machine:** Enforces valid transitions (`Draft` $\to$ `Submitted` $\to$ `Approved` $\to$ `Completed`). `Completed` proposals are terminal and cannot be reopened.
-  3. **Reviewer Action Panel:** Allows simulated review and status updates. Includes a clear demonstration mode disclaimer noting role selection is unauthenticated.
-  4. **Security Protections:**
-     - All user-submitted text rendered via `html.escape()` to prevent Stored XSS.
-     - All SQL queries use parameterized `?` placeholders.
-     - CSV export applies `sanitize_for_csv()` to neutralize Spreadsheet Formula Injection (`=`, `+`, `-`, `@`).
-  5. **Chronological Audit Trail:** Persistent local database action log of timestamps, reviewer roles, status transitions, and remarks.
-
----
-
-### Tab 7: Data Freshness, Lineage & Provenance Tracker
-- **Components:**
-  1. **Demonstration Mode Notice:** Clarifies that spatial grids are calibrated demonstration datasets, while weather-model-based conditions are retrieved via an API forecast feed.
-  2. **Sensor Lineage Audit Cards:** Details source, observation date, spatial resolution, and latency for Landsat 8/9, Sentinel-2, ERA5, WorldPop, OSM, and Open-Meteo.
-  3. **Observation Timeline:** Compares peak heatwave baseline scenes against early summer and historical archive scenes.
-
----
-
-### Tab 8: Trichy vs Chennai (Delta vs Non-Delta Comparative Analysis)
-- **Components:**
-  1. **Comparative Matrix Table:** Evaluates Geographic Context, Natural Buffers (Cauvery River vs Sea Breeze), Urban Encroachment patterns, and Peak Hotspot characteristics.
-  2. **Distribution Histograms:** Side-by-side frequency distributions of Land Surface Temperature across both cities.
-
----
-
-### Tab 9: Live Weather API & Architecture Guide
-- **Components:**
-  1. **Live Weather-Model Conditions Ingestion:** Fetches atmospheric model conditions from Open-Meteo (NOAA GFS / DWD ICON blend) displaying valid time and retrieval time.
-  2. **Scientific Scope Notice:** Clearly clarifies:
-     > *[ILLUSTRATION ONLY]: In this version, weather-model-based conditions are monitored strictly as real-time ambient context and are NOT applied to modify pre-computed static satellite LST or ward risk scores. Feeding single-point live weather into static satellite models without multi-temporal recalibration would be scientifically invalid.*
-  3. **Developer Reference:** Clean Python architecture demonstrating conceptual multi-temporal ingestion.
-  4. **Methodological Roadmap:** Highlights planned extensions (Leaflet-Draw custom polygon analysis, automated PDF briefings). Removed unrelated grid AC demand scope creep.
-
----
-
-## 5. Verification & Testing Runbook
+## 6. Verification & Testing Runbook
 
 ### Automated Test Suite Execution
 Execute the automated test suite covering scientific bounds, state machine rules, and security guards:

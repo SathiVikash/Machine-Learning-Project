@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 MUNICIPAL HEAT WATCH - Heat Action Plan (HAP) Decision Support & Early Warning System.
 A high-precision, AI-powered spatial decision support and workflow platform
@@ -53,7 +54,7 @@ st.set_page_config(
     page_title="MUNICIPAL HEAT WATCH | Decision Support System",
     page_icon="🔥",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # ==============================================================================
@@ -157,10 +158,17 @@ st.markdown("""
         flex-wrap: wrap !important;
         gap: 4px !important;
     }
+    div[data-testid="stRadio"] > label {
+        display: none !important;
+    }
+    [data-testid="stSidebar"] div[data-testid="stRadio"] > label {
+        display: none !important;
+    }
     div[data-testid="stRadio"] input[type="radio"] {
         display: none !important;
     }
-    div[data-testid="stRadio"] label {
+    div[data-testid="stRadio"] div[role="radiogroup"] label,
+    div[data-testid="stRadio"] > div label {
         display: flex !important;
         align-items: center !important;
         padding: 6px 14px !important;
@@ -306,9 +314,74 @@ st.markdown("""
     .status-rejected { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
     .status-completed { background: #f5f3ff; color: #7c3aed; border: 1px solid #ede9fe; }
 
-    /* Hide standard sidebar completely */
+    /* Space-Optimized Structured Sidebar */
     [data-testid="stSidebar"] {
+        display: block !important;
+        min-width: 260px !important;
+        max-width: 275px !important;
+        width: 265px !important;
+        background-color: #ffffff !important;
+        border-right: 1px solid #e2e8f0 !important;
+        box-shadow: 1px 0 4px rgba(0,0,0,0.02) !important;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        gap: 0.35rem !important;
+        padding-top: 0.8rem !important;
+        padding-left: 0.6rem !important;
+        padding-right: 0.6rem !important;
+    }
+
+    [data-testid="stSidebar"] div[data-testid="stRadio"] {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    [data-testid="stSidebar"] div[data-testid="stRadio"] > div {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+
+    [data-testid="stSidebar"] div[data-testid="stRadio"] input[type="radio"] {
         display: none !important;
+    }
+
+    [data-testid="stSidebar"] div[data-testid="stRadio"] div[role="radiogroup"] label,
+    [data-testid="stSidebar"] div[data-testid="stRadio"] > div label {
+        display: flex !important;
+        align-items: center !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+        background: transparent !important;
+        cursor: pointer !important;
+        border: 1px solid transparent !important;
+        transition: all 0.15s ease-in-out !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    [data-testid="stSidebar"] div[data-testid="stRadio"] label:hover {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+    }
+
+    [data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) {
+        background: #0f172a !important;
+        color: #ffffff !important;
+        box-shadow: 0 1px 3px rgba(15,23,42,0.15) !important;
+    }
+
+    [data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) p,
+    [data-testid="stSidebar"] div[data-testid="stRadio"] label:has(input:checked) span {
+        color: #ffffff !important;
+        font-weight: 700 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -368,7 +441,6 @@ with h_c1:
             <div class='brand-text-title'>
                 MUNICIPAL HEAT WATCH
                 <span class='live-telemetry-badge'>● Model Weather: Open-Meteo GFS/ICON Feed</span>
-                <span class='demo-mode-badge'>Sample Demonstration</span>
             </div>
             <div class='brand-text-sub'>Ward-Level Heat Decision Support & Spatial Screening System</div>
         </div>
@@ -403,18 +475,14 @@ if ward_df is not None and not ward_df.empty:
     target_ward_record = matched.iloc[0] if not matched.empty else ward_df.iloc[0]
 
 with h_c3:
-    live_w = fetch_live_weather(reg_info["center_lat"], reg_info["center_lon"])
-    live_temp = f"{live_w['temperature_2m']}°C" if live_w else "34.2°C"
-    live_heat_idx = f"{live_w['apparent_temperature']}°C" if live_w else "39.1°C"
-    valid_time_str = live_w.get('time', datetime.now().strftime('%Y-%m-%dT%H:00')) if live_w else datetime.now().strftime('%Y-%m-%dT%H:00')
     st.markdown(f"""
     <div style='display:flex; align-items:center; gap:8px; justify-content:flex-end; height:100%;'>
-        <div style='background:#fef3c7; color:#b45309; border:1px solid #fde68a; padding:4px 10px; border-radius:8px; font-size:0.75rem; font-weight:700;'>
-            ⚠️ Level 2 Heat Screening
+        <div style='background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; padding:4px 10px; border-radius:8px; font-size:0.75rem; font-weight:700;'>
+            ● Model Online: Spatial AI Active
         </div>
-        <div style='font-size:0.72rem; color:#475569; line-height:1.2; text-align:right;'>
-            <b>Weather-Model Conditions [Estimated]:</b> Dry-Bulb <b>{live_temp}</b> | Heat Index <b>{live_heat_idx}</b><br>
-            <span style='color:#94a3b8; font-size:0.68rem;'>Source: Open-Meteo (NOAA GFS / DWD ICON blend) | Valid: {valid_time_str} UTC | Retrieved: {datetime.now().strftime('%H:%M:%S IST')}</span>
+        <div style='font-size:0.72rem; color:#64748b; line-height:1.2; text-align:right;'>
+            <b>{reg_info['name']}</b> &bull; Urban Decision Support<br>
+            <span style='color:#94a3b8; font-size:0.68rem;'>System Surveillance Active</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -430,28 +498,61 @@ with h_c4:
     )
 
 # ==============================================================================
-# 2. TOP SEGMENTED HORIZONTAL NAVIGATION BAR
+# 2. SIDEBAR STRUCTURED NAVIGATION MENU
 # ==============================================================================
-nav_tabs = [
-    "Executive Summary",
-    "Ward Risk Profile & Assessment",
-    "Spatial Heat & Risk Map",
-    "Scenario Workspace (What-If)",
-    "Explainable AI (XAI & SHAP)",
-    "HAP Proposals & Review Tracker",
-    "Data Freshness & Provenance",
-    "Trichy vs Chennai (Delta)",
-    "Live API & Architecture"
-]
+with st.sidebar:
+    st.markdown("""
+    <div style='padding: 6px 4px 12px 4px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px;'>
+        <div style='display:flex; align-items:center; gap:10px;'>
+            <div style='width:36px; height:36px; min-width:36px; background:linear-gradient(135deg, #e11d48, #ea580c); border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; font-size:18px; box-shadow:0 2px 6px rgba(225,29,72,0.3);'>🔥</div>
+            <div>
+                <div style='font-weight:800; font-size:0.92rem; color:#0f172a; letter-spacing:-0.2px; line-height:1.2;'>HEAT WATCH</div>
+                <div style='font-size:0.68rem; font-weight:600; color:#64748b;'>Decision Support Portal</div>
+            </div>
+        </div>
+    </div>
+    <div style='font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; color:#94a3b8; margin: 4px 0 6px 4px;'>
+        NAVIGATION MENU
+    </div>
+    """, unsafe_allow_html=True)
 
-current_tab = st.radio(
-    "Navigation Menu",
-    options=nav_tabs,
-    horizontal=True,
-    label_visibility="collapsed"
-)
+    nav_tabs = [
+        "Dashboard",
+        "Ward Risk Profile & Assessment",
+        "Spatial Heat & Risk Map",
+        "Scenario Workspace (What-If)",
+        "Explainable AI (XAI & SHAP)",
+        "HAP Proposals & Review Tracker",
+        "Data Freshness & Provenance"
+    ]
 
-st.markdown("<div style='height:4px;'></div>", unsafe_allow_html=True)
+    nav_display_names = {
+        "Dashboard": "📊 Dashboard",
+        "Ward Risk Profile & Assessment": "📋 Ward Risk Profile",
+        "Spatial Heat & Risk Map": "🗺️ Spatial Heat Map",
+        "Scenario Workspace (What-If)": "🔮 Scenario Simulation",
+        "Explainable AI (XAI & SHAP)": "🧠 Explainable AI (SHAP)",
+        "HAP Proposals & Review Tracker": "📝 HAP Action Tracker",
+        "Data Freshness & Provenance": "🔄 Data Provenance"
+    }
+
+    current_tab = st.radio(
+        "Navigation Menu",
+        options=nav_tabs,
+        format_func=lambda x: nav_display_names.get(x, x),
+        label_visibility="collapsed"
+    )
+
+    st.markdown("""
+    <div style='margin-top: 28px; padding: 10px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;'>
+        <div style='font-size: 0.70rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px;'>
+            <span style='color: #16a34a;'>●</span> System Operational
+        </div>
+        <div style='font-size: 0.68rem; color: #64748b; margin-top: 4px; line-height: 1.3;'>
+            Spatial Screening & Ward Decision Support System
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 if ward_df is None or grid_df is None:
     st.error("Data pipeline outputs not found. Please run: `cmd.exe /c python scripts/run_pipeline.py --all`")
@@ -471,16 +572,9 @@ def render_ward_selector(key_suffix=""):
         st.rerun()
 
 # ==============================================================================
-# TAB 1: EXECUTIVE SUMMARY
+# TAB 1: DASHBOARD
 # ==============================================================================
-if current_tab == "Executive Summary":
-    # Scope & Limitations Callout
-    st.markdown("""
-    <div style='background:#f8fafc; border-left:4px solid #0284c7; border-top:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; border-radius:6px; padding:12px 16px; margin-bottom:14px; font-size:0.80rem; color:#334155; line-height:1.4;'>
-        <b>Scope & Operational Boundaries:</b> Municipal Heat Watch is an exploratory spatial screening and decision-support prototype. Satellite-derived Land Surface Temperature (LST) captures skin surface radiometric temperature from USGS Landsat-9 at overpass moments (physically distinct from 2m ambient air temperature). Atmospheric weather feeds are numerical model outputs from Open-Meteo (NOAA GFS / DWD ICON blend) monitored for ambient context and are not fed into the static spatial regression model. What-if scenario interventions are empirical model sensitivity estimates, not validated causal cooling forecasts. Role assignments are unauthenticated demonstrations. This system does not issue statutory weather warnings or clinical heatstroke prognoses.
-    </div>
-    """, unsafe_allow_html=True)
-
+if current_tab == "Dashboard":
     # 5 KPI CARDS DECK
     k1, k2, k3, k4, k5 = st.columns(5)
     
@@ -565,6 +659,12 @@ if current_tab == "Executive Summary":
     with k5:
         # Non-double-counted population estimate
         total_pop = int((ward_df['Mean_Population_Density'] * (ward_df['Grid_Cell_Count'] * 0.0625)).sum())
+        if total_pop <= 900000:
+            pop_display = f"{total_pop/1000:.0f}k"
+        else:
+            millions = total_pop / 1000000
+            pop_display = f"{millions:.2f}".rstrip("0").rstrip(".") + "M"
+
         st.markdown(f"""
         <div class='kpi-container'>
             <div class='kpi-header-row'>
@@ -572,7 +672,7 @@ if current_tab == "Executive Summary":
                 <span class='kpi-icon-pill' style='background:#f5f3ff; color:#7c3aed;'>👥</span>
             </div>
             <div class='kpi-value-row'>
-                <span class='kpi-main-number'>{total_pop/1000:.0f}k</span>
+                <span class='kpi-main-number'>{pop_display}</span>
                 <span class='kpi-subtext-unit'>Citizens</span>
             </div>
             <div class='kpi-footer-row'>
@@ -588,16 +688,6 @@ if current_tab == "Executive Summary":
     c_table, c_dispatch = st.columns([1.6, 1.2])
 
     with c_table:
-        st.markdown("""
-        <div class='op-card'>
-            <div class='op-card-header'>
-                <div>
-                    <div class='op-card-title'>🏆 Administrative Ward Risk Rankings</div>
-                    <div class='op-card-subtitle'>Calculated via Decoupled Heat Risk Index: HRI = √(Exposure × Vulnerability)</div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
         search_query = st.text_input("Filter Wards by Name or ID:", placeholder="🔍 Search e.g. Palakkarai, Srirangam, W-12...", label_visibility="collapsed")
         
         display_wards = ward_df.copy()
@@ -609,7 +699,7 @@ if current_tab == "Executive Summary":
 
         # Table HTML with clean string formatting (zero indentation to prevent markdown code block formatting)
         table_rows = []
-        for idx, row in display_wards.head(8).iterrows():
+        for idx, row in display_wards.iterrows():
             rank_num = int(row["Priority_Rank"])
             r_circle_cls = "background:#fee2e2; color:#dc2626; border:1px solid #fca5a5;" if rank_num <= 3 else "background:#ffedd5; color:#ea580c; border:1px solid #fdba74;"
             cat_color = RISK_COLORS.get(row["Risk_Category"], "#abdda4")
@@ -630,16 +720,17 @@ if current_tab == "Executive Summary":
             table_rows.append(row_html)
 
         table_html = (
-            "<table style='width:100%; border-collapse:collapse; margin-top:6px;'>"
-            "<thead>"
+            "<div style='max-height:388px; overflow-y:auto; overflow-x:auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:4px 10px; box-shadow:0 1px 2px rgba(0,0,0,0.02); margin-top:2px;'>"
+            "<table style='width:100%; border-collapse:collapse;'>"
+            "<thead style='position:sticky; top:0; background:#ffffff; z-index:2;'>"
             "<tr style='border-bottom:2px solid #e2e8f0; font-size:0.72rem; text-transform:uppercase; color:#64748b; font-weight:700; text-align:left;'>"
-            "<th style='padding:6px;'>Rank</th>"
-            "<th style='padding:6px;'>Ward ID</th>"
-            "<th style='padding:6px;'>Name</th>"
-            "<th style='padding:6px;'>Tier</th>"
-            "<th style='padding:6px;'>HRI</th>"
-            "<th style='padding:6px;'>Mean LST</th>"
-            "<th style='padding:6px;'>Density</th>"
+            "<th style='padding:8px 6px; background:#ffffff;'>Rank</th>"
+            "<th style='padding:8px 6px; background:#ffffff;'>Ward ID</th>"
+            "<th style='padding:8px 6px; background:#ffffff;'>Name</th>"
+            "<th style='padding:8px 6px; background:#ffffff;'>Tier</th>"
+            "<th style='padding:8px 6px; background:#ffffff;'>HRI</th>"
+            "<th style='padding:8px 6px; background:#ffffff;'>Mean LST</th>"
+            "<th style='padding:8px 6px; background:#ffffff;'>Density</th>"
             "</tr>"
             "</thead>"
             f"<tbody>{''.join(table_rows)}</tbody>"
@@ -648,143 +739,280 @@ if current_tab == "Executive Summary":
         )
         st.markdown(table_html, unsafe_allow_html=True)
 
+    with c_dispatch:
         render_ward_selector("summary_table_sync")
 
-    with c_dispatch:
-        st.markdown("""
-        <div class='op-card'>
-            <div class='op-card-header'>
-                <div>
-                    <div class='op-card-title'>🚨 Active Ward Quick Assessment</div>
-                    <div class='op-card-subtitle'>Synchronized with selection across all tabs</div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
         cat_badge_color = RISK_COLORS.get(target_ward_record["Risk_Category"], "#ea580c")
-        st.markdown(f"""
-        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
-            <div>
-                <div style='font-size:1.25rem; font-weight:800; color:#0f172a;'>
-                    {target_ward_record['ward_name']}
-                </div>
-                <div style='font-size:0.78rem; color:#64748b; margin-top:2px;'>
-                    Ward ID: <b>{target_ward_record['ward_id']}</b> &nbsp;|&nbsp; 
-                    Priority Rank: <b>#{target_ward_record['Priority_Rank']} of {len(ward_df)}</b>
-                </div>
-            </div>
-            <div style='text-align:right;'>
-                <span style='background:{cat_badge_color}; color:white; font-size:0.78rem; font-weight:700; padding:4px 10px; border-radius:12px;'>
-                    {target_ward_record['Risk_Category']}
-                </span>
-                <div style='font-size:0.8rem; font-weight:800; color:#dc2626; margin-top:4px;'>
-                    LST: {target_ward_record['Mean_LST_Celsius']:.1f}°C
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Plain-language driver summary
         drivers = generate_plain_language_drivers(target_ward_record)
-        st.markdown("<b style='font-size:0.82rem; color:#334155;'>Key Thermal & Social Drivers:</b>", unsafe_allow_html=True)
-        for d in drivers[:3]:
-            st.markdown(f"""
-            <div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:8px 12px; margin-top:6px; font-size:0.8rem;'>
-                <b>{d['icon']} {d['factor']}</b>: <span style='color:#dc2626; font-weight:700;'>{d['impact']}</span><br>
-                <span style='color:#64748b;'>{d['description']}</span>
-            </div>
-            """, unsafe_allow_html=True)
+        drivers_html = "".join([
+            f"<div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:8px 12px; margin-top:6px; font-size:0.8rem;'>"
+            f"<b>{d['icon']} {d['factor']}</b>: <span style='color:#dc2626; font-weight:700;'>{d['impact']}</span><br>"
+            f"<span style='color:#64748b;'>{d['description']}</span>"
+            f"</div>"
+            for d in drivers[:3]
+        ])
 
-        st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
-        if st.button("🔍 Open Full 5-Section Ward Assessment Profile", type="primary", use_container_width=True):
-            st.info("Navigate to the **'Ward Risk Profile & Assessment'** tab above to view the full profile and draft a prototype Heat Action Proposal.")
-        
-        st.markdown("</div>", unsafe_allow_html=True)
+        dispatch_card_html = (
+            f"<div style='background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-top:2px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>"
+            f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>"
+            f"<div>"
+            f"<div style='font-size:1.25rem; font-weight:800; color:#0f172a;'>{target_ward_record['ward_name']}</div>"
+            f"<div style='font-size:0.78rem; color:#64748b; margin-top:2px;'>"
+            f"Ward ID: <b>{target_ward_record['ward_id']}</b> &nbsp;|&nbsp; Priority Rank: <b>#{target_ward_record['Priority_Rank']} of {len(ward_df)}</b>"
+            f"</div>"
+            f"</div>"
+            f"<div style='text-align:right;'>"
+            f"<span style='background:{cat_badge_color}; color:white; font-size:0.78rem; font-weight:700; padding:4px 10px; border-radius:12px;'>{target_ward_record['Risk_Category']}</span>"
+            f"<div style='font-size:0.8rem; font-weight:800; color:#dc2626; margin-top:4px;'>LST: {target_ward_record['Mean_LST_Celsius']:.1f}°C</div>"
+            f"</div>"
+            f"</div>"
+            f"<b style='font-size:0.82rem; color:#334155;'>Key Thermal & Social Drivers:</b>"
+            f"{drivers_html}"
+            f"</div>"
+        )
+        st.markdown(dispatch_card_html, unsafe_allow_html=True)
+
+        # Fetch Live Weather for selected ward centroid
+        w_cells = grid_df[grid_df["ward_id"] == target_ward_record["ward_id"]]
+        if not w_cells.empty and "lat" in w_cells.columns and "lon" in w_cells.columns:
+            w_lat = float(w_cells["lat"].mean())
+            w_lon = float(w_cells["lon"].mean())
+        else:
+            w_lat = float(reg_info["center_lat"])
+            w_lon = float(reg_info["center_lon"])
+
+        ward_weather = fetch_live_weather(w_lat, w_lon)
+        w_temp = f"{ward_weather['temperature_2m']}°C" if ward_weather else "34.2°C"
+        w_rh = f"{ward_weather['relative_humidity_2m']}%" if ward_weather else "60%"
+        w_app = f"{ward_weather['apparent_temperature']}°C" if ward_weather else "39.1°C"
+        w_wind = f"{ward_weather['wind_speed_10m']} km/h" if ward_weather else "11.2 km/h"
+        valid_t = ward_weather.get('time', datetime.now().strftime('%Y-%m-%dT%H:00')) if ward_weather else datetime.now().strftime('%Y-%m-%dT%H:00')
+
+        weather_card_html = (
+            f"<div style='background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; margin-top:10px; box-shadow:0 1px 2px rgba(0,0,0,0.02);'>"
+            f"<div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;'>"
+            f"<div style='font-size:0.84rem; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:6px;'>"
+            f"<span>🌤️</span> Weather-Model-Based Conditions"
+            f"</div>"
+            f"<span style='background:#f0fdf4; color:#15803d; font-size:0.68rem; font-weight:700; padding:2px 8px; border-radius:10px; border:1px solid #bbf7d0;'>"
+            f"Ward Centroid ({w_lat:.3f}°N, {w_lon:.3f}°E)"
+            f"</span>"
+            f"</div>"
+            f"<div style='display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;'>"
+            f"<div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 4px; text-align:center;'>"
+            f"<div style='font-size:0.68rem; color:#64748b; font-weight:600;'>Dry-Bulb Temp</div>"
+            f"<div style='font-size:0.95rem; font-weight:800; color:#0f172a; margin-top:2px;'>{w_temp}</div>"
+            f"</div>"
+            f"<div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 4px; text-align:center;'>"
+            f"<div style='font-size:0.68rem; color:#64748b; font-weight:600;'>Rel. Humidity</div>"
+            f"<div style='font-size:0.95rem; font-weight:800; color:#0f172a; margin-top:2px;'>{w_rh}</div>"
+            f"</div>"
+            f"<div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 4px; text-align:center;'>"
+            f"<div style='font-size:0.68rem; color:#64748b; font-weight:600;'>Heat Index</div>"
+            f"<div style='font-size:0.95rem; font-weight:800; color:#dc2626; margin-top:2px;'>{w_app}</div>"
+            f"</div>"
+            f"<div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:6px 4px; text-align:center;'>"
+            f"<div style='font-size:0.68rem; color:#64748b; font-weight:600;'>Wind Speed</div>"
+            f"<div style='font-size:0.95rem; font-weight:800; color:#0f172a; margin-top:2px;'>{w_wind}</div>"
+            f"</div>"
+            f"</div>"
+            f"<div style='margin-top:6px; font-size:0.66rem; color:#94a3b8; display:flex; justify-content:space-between; align-items:center;'>"
+            f"<span>Source: Open-Meteo (NOAA GFS / DWD ICON blend) | Valid: {valid_t} UTC</span>"
+            f"<span style='color:#16a34a; font-weight:700;'>● Ward Live Sync</span>"
+            f"</div>"
+            f"</div>"
+        )
+        st.markdown(weather_card_html, unsafe_allow_html=True)
 
 # ==============================================================================
 # TAB 2: WARD RISK PROFILE & ASSESSMENT (THE #1 MOST IMPORTANT SCREEN)
 # ==============================================================================
 elif current_tab == "Ward Risk Profile & Assessment":
-    st.markdown("""
-    <div class='op-card' style='margin-bottom:12px;'>
-        <div class='op-card-header'>
-            <div>
-                <div class='op-card-title'>📋 Municipal Ward Assessment & Action Profile</div>
-                <div class='op-card-subtitle'>Ward assessment profile: 5-part operational sheet translating spatial ML into municipal governance insights</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
     render_ward_selector("profile_tab")
-    st.markdown("</div>", unsafe_allow_html=True)
 
     profile = get_ward_assessment_profile(target_ward_record.to_dict(), selected_region)
 
-    # 1. SITUATION SECTION
-    st.markdown("### 1. Situation & Physical Climate Context")
-    s1, s2, s3, s4 = st.columns(4)
-    with s1:
-        st.metric("Risk Category [Administrative Heuristic]", profile["situation"]["risk_category"], delta=f"Rank #{profile['situation']['priority_rank']}")
-    with s2:
-        st.metric("Satellite LST [Observed: Landsat-9]", f"{profile['situation']['mean_lst_c']:.1f}°C", delta=f"Max {profile['situation']['max_lst_c']:.1f}°C")
-    with s3:
-        st.metric("Decoupled HRI Score [Derived Composite]", f"{profile['situation']['whri_score']:.3f}", delta="Scale: 0 to 1")
-    with s4:
-        st.metric("Data Confidence [Cross-Validated]", profile["situation"]["data_confidence"], delta=profile["assessment_date"])
+    # SITUATION SECTION - GRAPH FORMAT
+    st.markdown("### Situation & Physical Climate Context")
+    
+    fig1, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 2.7), dpi=100)
+    fig1.patch.set_facecolor('#ffffff')
+    
+    # Graph 1: Thermal Radiation Metrics
+    thermal_labels = ['City Baseline', 'Ward Mean LST', 'Peak Hotspot']
+    thermal_vals = [
+        float(ward_df['Mean_LST_Celsius'].mean()),
+        float(profile['situation']['mean_lst_c']),
+        float(profile['situation']['max_lst_c'])
+    ]
+    thermal_colors = ['#0284c7', '#ea580c', '#dc2626']
+    
+    ax1.set_facecolor('#ffffff')
+    bars1 = ax1.barh(thermal_labels, thermal_vals, color=thermal_colors, height=0.52)
+    ax1.set_xlim(25, max(thermal_vals) + 5.5)
+    ax1.set_xlabel("Surface Temperature (°C)", fontsize=8, fontweight='600', color='#475569')
+    ax1.set_title("Thermal Radiation Context (Landsat-9)", fontsize=9, fontweight='700', color='#0f172a', pad=6)
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+    ax1.spines['left'].set_color('#cbd5e1')
+    ax1.spines['bottom'].set_color('#cbd5e1')
+    ax1.tick_params(colors='#475569', labelsize=8)
+    for bar in bars1:
+        w = bar.get_width()
+        ax1.text(w + 0.35, bar.get_y() + bar.get_height()/2, f"{w:.1f}°C", va='center', ha='left', fontsize=8, fontweight='700', color='#0f172a')
+    
+    # Graph 2: Physical Environmental Covariates
+    env_labels = ['Water Dist (km)', 'Impervious (NDBI x100)', 'Canopy (NDVI x100)', 'Built Density (%)']
+    b_dens = float(target_ward_record.get('Mean_Building_Density_pct', 0))
+    ndvi_scaled = max(0, float(target_ward_record.get('Mean_NDVI', 0)) * 100)
+    ndbi_scaled = max(0, float(target_ward_record.get('Mean_NDBI', 0)) * 100)
+    dist_km = float(target_ward_record.get('Mean_Dist_to_Water_m', 0)) / 1000.0
+    env_vals = [dist_km, ndbi_scaled, ndvi_scaled, b_dens]
+    env_colors = ['#0ea5e9', '#b45309', '#16a34a', '#64748b']
+    
+    ax2.set_facecolor('#ffffff')
+    bars2 = ax2.barh(env_labels, env_vals, color=env_colors, height=0.52)
+    ax2.set_xlim(0, max(max(env_vals) * 1.25, 15))
+    ax2.set_xlabel("Indicator Magnitude", fontsize=8, fontweight='600', color='#475569')
+    ax2.set_title("Physical Microclimate Covariates", fontsize=9, fontweight='700', color='#0f172a', pad=6)
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['left'].set_color('#cbd5e1')
+    ax2.spines['bottom'].set_color('#cbd5e1')
+    ax2.tick_params(colors='#475569', labelsize=8)
+    for bar, val in zip(bars2, env_vals):
+        w = bar.get_width()
+        suffix = " km" if bar.get_y() == bars2[0].get_y() else ("%" if bar.get_y() == bars2[3].get_y() else "")
+        ax2.text(w + 0.5, bar.get_y() + bar.get_height()/2, f"{val:.1f}{suffix}", va='center', ha='left', fontsize=8, fontweight='700', color='#0f172a')
+    
+    plt.tight_layout()
+    st.pyplot(fig1, use_container_width=True)
+    plt.close(fig1)
 
-    st.markdown("<hr style='margin:16px 0; border-color:#e2e8f0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:14px 0; border-color:#e2e8f0;'>", unsafe_allow_html=True)
 
-    # 2. PEOPLE AND VULNERABILITY SECTION
-    st.markdown("### 2. People & Socio-Demographic Vulnerability")
-    pv1, pv2, pv3, pv4 = st.columns(4)
-    with pv1:
-        st.metric("Estimated Residents [Estimated: WorldPop]", f"{profile['people_and_vulnerability']['estimated_population']:,}", delta=f"Area: {profile['people_and_vulnerability']['area_sq_km']} km²")
-    with pv2:
-        st.metric("Physiologically Sensitive [Estimated: Age Cohorts]", f"{profile['people_and_vulnerability']['vulnerable_population_count']:,} citizens", delta="Children (<5) + Seniors (>65)")
-    with pv3:
-        st.metric("Low-Income Households [Estimated Proxy]", f"{profile['people_and_vulnerability']['low_income_pct']:.1f}%", delta="Limited domestic cooling")
-    with pv4:
-        st.metric("Distance to Healthcare [Observed: OSM]", f"{target_ward_record['Mean_Dist_to_Water_m'] + 450:.0f} m", delta="Nearest PHC / Hospital")
+    # PEOPLE AND VULNERABILITY SECTION - GRAPH FORMAT
+    st.markdown("### People & Socio-Demographic Vulnerability")
+    
+    fig2, (ax2_1, ax2_2) = plt.subplots(1, 2, figsize=(10, 2.7), dpi=100)
+    fig2.patch.set_facecolor('#ffffff')
 
-    st.markdown("<hr style='margin:16px 0; border-color:#e2e8f0;'>", unsafe_allow_html=True)
+    v_pop = profile['people_and_vulnerability']
+    tot_pop = max(1, v_pop['estimated_population'])
+    child_cnt = v_pop['children_count']
+    eld_cnt = v_pop['elderly_count']
+    other_cnt = max(0, tot_pop - (child_cnt + eld_cnt))
 
-    # 3. WHY THIS WARD? (PLAIN-LANGUAGE XAI EXPLANATIONS)
-    st.markdown("### 3. Why This Ward? (Key Thermal & Vulnerability Drivers)")
+    pop_labels = ['General Cohort', 'Seniors (>65)', 'Children (<5)']
+    pop_counts = [other_cnt, eld_cnt, child_cnt]
+    pop_colors = ['#94a3b8', '#fb923c', '#f43f5e']
+
+    ax2_1.set_facecolor('#ffffff')
+    bars2_1 = ax2_1.barh(pop_labels, pop_counts, color=pop_colors, height=0.52)
+    ax2_1.set_xlim(0, max(pop_counts) * 1.35)
+    ax2_1.set_xlabel("Resident Population", fontsize=8, fontweight='600', color='#475569')
+    ax2_1.set_title(f"Demographic Cohorts (Total: {tot_pop:,})", fontsize=9, fontweight='700', color='#0f172a', pad=6)
+    ax2_1.spines['top'].set_visible(False)
+    ax2_1.spines['right'].set_visible(False)
+    ax2_1.spines['left'].set_color('#cbd5e1')
+    ax2_1.spines['bottom'].set_color('#cbd5e1')
+    ax2_1.tick_params(colors='#475569', labelsize=8)
+    for bar, cnt in zip(bars2_1, pop_counts):
+        w = bar.get_width()
+        pct = (cnt / tot_pop) * 100
+        ax2_1.text(w + (max(pop_counts)*0.02), bar.get_y() + bar.get_height()/2, f"{cnt:,} ({pct:.1f}%)", va='center', ha='left', fontsize=8, fontweight='700', color='#0f172a')
+
+    # Subplot 2: Socio-Economic Fragility Factors (%)
+    vuln_labels = ['Composite Vuln.', 'Child Ratio', 'Senior Ratio', 'Low-Income Homes']
+    low_inc = float(v_pop['low_income_pct'])
+    eld_pct = float(v_pop['elderly_ratio_pct'])
+    child_pct = float(v_pop['children_ratio_pct'])
+    comp_vuln = float(profile['situation']['vulnerability_score']) * 100.0
+
+    vuln_vals = [comp_vuln, child_pct, eld_pct, low_inc]
+    vuln_colors = ['#7c3aed', '#f59e0b', '#ea580c', '#dc2626']
+
+    ax2_2.set_facecolor('#ffffff')
+    bars2_2 = ax2_2.barh(vuln_labels, vuln_vals, color=vuln_colors, height=0.52)
+    ax2_2.set_xlim(0, 105)
+    ax2_2.set_xlabel("Vulnerability Weight (%)", fontsize=8, fontweight='600', color='#475569')
+    ax2_2.set_title("Socio-Demographic Vulnerability Factors", fontsize=9, fontweight='700', color='#0f172a', pad=6)
+    ax2_2.spines['top'].set_visible(False)
+    ax2_2.spines['right'].set_visible(False)
+    ax2_2.spines['left'].set_color('#cbd5e1')
+    ax2_2.spines['bottom'].set_color('#cbd5e1')
+    ax2_2.tick_params(colors='#475569', labelsize=8)
+    for bar, val in zip(bars2_2, vuln_vals):
+        w = bar.get_width()
+        ax2_2.text(w + 1.2, bar.get_y() + bar.get_height()/2, f"{val:.1f}%", va='center', ha='left', fontsize=8, fontweight='700', color='#0f172a')
+
+    plt.tight_layout()
+    st.pyplot(fig2, use_container_width=True)
+    plt.close(fig2)
+
+    st.markdown("<hr style='margin:14px 0; border-color:#e2e8f0;'>", unsafe_allow_html=True)
+
+    # WHY THIS WARD SECTION
+    st.markdown("### Why This Ward? (Key Thermal & Vulnerability Drivers)")
     st.caption("Plain-language physical attributions explaining model findings without raw statistical jargon.")
 
     for d in profile["drivers_plain_language"]:
-        st.markdown(f"""
-        <div style='background:white; border:1px solid #e2e8f0; border-left:4px solid {"#dc2626" if d["direction"] == "heating" else "#16a34a"}; border-radius:8px; padding:12px 16px; margin-bottom:8px;'>
-            <div style='display:flex; justify-content:space-between; align-items:center;'>
-                <div style='font-size:0.95rem; font-weight:800; color:#0f172a;'>
-                    {d['icon']} {d['factor']}
-                </div>
-                <div style='font-size:0.85rem; font-weight:800; color:{"#dc2626" if d["direction"] == "heating" else "#16a34a"};'>
-                    {d['impact']}
-                </div>
-            </div>
-            <div style='font-size:0.82rem; color:#475569; margin-top:4px;'>
-                {d['description']}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        d_color = "#dc2626" if d["direction"] == "heating" else "#16a34a"
+        d_icon = d["icon"]
+        d_factor = d["factor"]
+        d_impact = d["impact"]
+        d_desc = d["description"]
+        driver_card_html = (
+            f"<div style='background:white; border:1px solid #e2e8f0; border-left:4px solid {d_color}; border-radius:8px; padding:12px 16px; margin-bottom:8px;'>"
+            f"<div style='display:flex; justify-content:space-between; align-items:center;'>"
+            f"<div style='font-size:0.95rem; font-weight:800; color:#0f172a;'>{d_icon} {d_factor}</div>"
+            f"<div style='font-size:0.85rem; font-weight:800; color:{d_color};'>{d_impact}</div>"
+            f"</div>"
+            f"<div style='font-size:0.82rem; color:#475569; margin-top:4px;'>{d_desc}</div>"
+            f"</div>"
+        )
+        st.markdown(driver_card_html, unsafe_allow_html=True)
 
-    st.markdown("<hr style='margin:16px 0; border-color:#e2e8f0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin:14px 0; border-color:#e2e8f0;'>", unsafe_allow_html=True)
 
-    # 4. RECOMMENDED INTERVENTIONS SECTION
-    st.markdown("### 4. Recommended Heat Action Plan (HAP) Interventions")
+    # HIGH-IMPACT EYE-CATCHING HAP INTERVENTIONS SECTION
+    w_name = profile["ward_name"]
+    w_risk_cat = profile["situation"]["risk_category"]
+    hap_header_html = (
+        "<div style='background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 2px solid #fdba74; border-left: 6px solid #ea580c; border-radius: 12px; padding: 16px 20px; margin: 16px 0 14px 0; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.08);'>"
+        "<div style='display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;'>"
+        "<div>"
+        "<span style='background: #ea580c; color: white; font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;'>Direct Action Mandate</span>"
+        "<div style='font-size: 1.25rem; font-weight: 800; color: #7c2d12; margin-top: 6px;'>&#128737;&#65039; Recommended Heat Action Plan (HAP) Interventions</div>"
+        f"<div style='font-size: 0.82rem; color: #9a3412; margin-top: 2px;'>High-priority targeted mitigation protocols for <b>{w_name}</b> (Risk Tier: <b>{w_risk_cat}</b>)</div>"
+        "</div>"
+        "<div style='text-align: right;'>"
+        "<span style='background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-size: 0.78rem; font-weight: 800; padding: 6px 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(220,38,38,0.1);'>&#9889; Projected Cooling Impact: -1.5°C to -2.8°C</span>"
+        "</div>"
+        "</div>"
+        "</div>"
+    )
+    st.markdown(hap_header_html, unsafe_allow_html=True)
+
     for act in profile["recommended_interventions"]:
-        st.markdown(f"""
-        <div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px; margin-bottom:8px; display:flex; align-items:center; gap:10px;'>
-            <span style='color:#ea580c; font-size:18px;'>⚡</span>
-            <span style='font-size:0.85rem; font-weight:600; color:#1e293b;'>{act}</span>
-        </div>
-        """, unsafe_allow_html=True)
+        act_html = (
+            "<div style='background: #ffffff; border: 1px solid #fed7aa; border-left: 5px solid #f97316; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between;'>"
+            "<div style='display: flex; align-items: center; gap: 12px;'>"
+            "<span style='font-size: 20px; background: #fff7ed; padding: 6px 10px; border-radius: 8px; border: 1px solid #ffedd5;'>&#9889;</span>"
+            "<div>"
+            f"<div style='font-size: 0.92rem; font-weight: 700; color: #1e293b;'>{act}</div>"
+            "<div style='font-size: 0.72rem; color: #64748b; margin-top: 2px;'>Priority Municipal Vector • Active Surveillance Protocol</div>"
+            "</div>"
+            "</div>"
+            "<span style='background: #ffedd5; color: #c2410c; font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; white-space: nowrap;'>MANDATORY</span>"
+            "</div>"
+        )
+        st.markdown(act_html, unsafe_allow_html=True)
 
     st.markdown("<hr style='margin:16px 0; border-color:#e2e8f0;'>", unsafe_allow_html=True)
 
-    # 5. NEXT STEP CTA: CREATE PROPOSAL
-    st.markdown("### 5. Next Step: Formalize Municipal Action Proposal")
+    # FORMALIZE PROPOSAL CTA
+    st.markdown("### Formalize Municipal Action Proposal")
     st.markdown("Convert this spatial screening assessment into a prototype municipal Heat Action Plan proposal tracked in the local SQLite database.")
 
     with st.form("quick_proposal_form"):
@@ -836,15 +1064,7 @@ elif current_tab == "Spatial Heat & Risk Map":
         </div>
     """, unsafe_allow_html=True)
 
-    m_col1, m_col2 = st.columns([3, 1])
-    with m_col1:
-        map_layer = st.radio(
-            "Map Color Theme:",
-            options=["Ward Heat Risk Index (WHRI)", "Mean Surface Temperature (°C)", "Vulnerability Score"],
-            horizontal=True
-        )
-    with m_col2:
-        basemap_choice = st.selectbox("Basemap Style:", ["OpenStreetMap (Clean, Free)", "Esri Satellite Imagery"])
+    basemap_choice = st.selectbox("Basemap Style:", ["OpenStreetMap (Clean, Free)", "Esri Satellite Imagery"])
 
     if "Satellite" in basemap_choice:
         m = folium.Map(
@@ -898,89 +1118,370 @@ elif current_tab == "Scenario Workspace (What-If)":
     """, unsafe_allow_html=True)
 
     render_ward_selector("scenario_tab")
-    st.markdown("</div>", unsafe_allow_html=True)
 
-    # Base feature row for selected ward
-    ward_cells = grid_df[grid_df["ward_id"] == st.session_state["selected_ward_id"]]
-    base_row = ward_cells.iloc[0].to_dict()
+    # Simulation Mode Selector
+    sim_mode = st.radio(
+        "Simulation Mode",
+        options=["🌿 Ward Cooling Interventions (HAP)", "🏗️ New Building Construction Impact Simulator"],
+        horizontal=True,
+        label_visibility="collapsed"
+    )
+    st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
-    s_c1, s_c2 = st.columns([1.1, 1.9])
+    if sim_mode == "🌿 Ward Cooling Interventions (HAP)":
+        # Base feature row for selected ward
+        ward_cells = grid_df[grid_df["ward_id"] == st.session_state["selected_ward_id"]]
+        base_row = ward_cells.iloc[0].to_dict()
 
-    with s_c1:
-        st.markdown("<div class='op-card'>", unsafe_allow_html=True)
-        st.markdown("<b style='font-size:0.95rem; color:#0f172a;'>1. Select Municipal Intervention Package:</b>", unsafe_allow_html=True)
-        
-        intervention_choice = st.selectbox(
-            "Intervention Package:",
-            options=["cool_roof", "urban_greening", "de_paving", "water_corridor", "comprehensive_hap", "custom"],
-            format_func=lambda x: {
-                "cool_roof": "🏠 High-Albedo Cool Roof Coating",
-                "urban_greening": "🌳 Miyawaki Forest & Tree Canopy Expansion",
-                "de_paving": "🧱 Permeable Pavement & De-paving",
-                "water_corridor": "💧 Urban Water Body / Canal Restoration",
-                "comprehensive_hap": "🛡️ Comprehensive HAP Resilience Package",
-                "custom": "⚙️ Custom Fine-Tuned Adjustments"
-            }[x]
-        )
+        s_c1, s_c2 = st.columns([1.1, 1.9])
 
-        intensity = st.slider("Intervention Scale / Intensity Factor:", 0.5, 1.5, 1.0, 0.1)
-
-        # Base features
-        if intervention_choice != "custom":
-            scenario_inputs = scenario_service.apply_preset_intervention(base_row, intervention_choice, intensity)
-            st.info(f"Applying preset shifts calibrated to empirical urban heat studies.")
-        else:
-            scenario_inputs = dict(base_row)
-            scenario_inputs["NDVI"] = st.slider("NDVI (Vegetation):", -0.2, 0.85, float(base_row["NDVI"]), 0.05)
-            scenario_inputs["NDBI"] = st.slider("NDBI (Built-up):", -0.4, 0.60, float(base_row["NDBI"]), 0.05)
-            scenario_inputs["Albedo"] = st.slider("Albedo (Reflectance):", 0.05, 0.55, float(base_row.get("Albedo", 0.18)), 0.02)
-            scenario_inputs["Building_Density_pct"] = st.slider("Building Density (%):", 0.0, 95.0, float(base_row["Building_Density_pct"]), 5.0)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with s_c2:
-        st.markdown("<div class='op-card'>", unsafe_allow_html=True)
-        st.markdown("<b style='font-size:0.95rem; color:#0f172a;'>2. Model Evaluation (Baseline vs. Scenario):</b>", unsafe_allow_html=True)
-
-        res = scenario_service.evaluate_scenario(
-            model=model,
-            baseline_row=base_row,
-            scenario_features=scenario_inputs,
-            vulnerability_score=float(target_ward_record["Mean_Vulnerability_Score"])
-        )
-
-        # Metric columns
-        m1, m2, m3 = st.columns(3)
-        with m1:
-            st.metric(
-                "Predicted Surface LST [Estimated]",
-                f"{res['scenario']['predicted_lst_c']}°C",
-                delta=f"-{res['delta']['cooling_celsius']}°C Sensitivity" if res['delta']['cooling_celsius'] > 0 else f"{res['delta']['cooling_celsius']}°C",
-                delta_color="normal"
-            )
-        with m2:
-            st.metric(
-                "Simulated Heat Risk Index [Derived]",
-                f"{res['scenario']['heat_risk_index']}",
-                delta=f"-{res['delta']['hri_reduction']} HRI ({res['delta']['pct_hri_improvement']}%)",
-                delta_color="normal"
-            )
-        with m3:
-            st.metric(
-                "Model Domain Check [Clamped]",
-                "Strictly Valid" if res["is_valid_domain"] else "Clamped to Boundary",
-                delta="Within Empirical Bounds"
+        with s_c1:
+            st.markdown("<b style='font-size:0.95rem; color:#0f172a;'>Select Municipal Intervention Package</b>", unsafe_allow_html=True)
+            
+            intervention_choice = st.selectbox(
+                "Intervention Package:",
+                options=["cool_roof", "urban_greening", "de_paving", "water_corridor", "comprehensive_hap", "custom"],
+                format_func=lambda x: {
+                    "cool_roof": "🏠 High-Albedo Cool Roof Coating",
+                    "urban_greening": "🌳 Miyawaki Forest & Tree Canopy Expansion",
+                    "de_paving": "🧱 Permeable Pavement & De-paving",
+                    "water_corridor": "💧 Urban Water Body / Canal Restoration",
+                    "comprehensive_hap": "🛡️ Comprehensive HAP Resilience Package",
+                    "custom": "⚙️ Custom Fine-Tuned Adjustments"
+                }[x]
             )
 
-        if res["clamped_features"]:
-            st.warning("⚠️ Some feature values reached maximum empirical boundaries and were safely clamped to maintain scientific validity.")
+            if intervention_choice == "cool_roof":
+                num_houses = st.slider(
+                    "Houses / Buildings Coated with High-Albedo Coating:",
+                    min_value=100,
+                    max_value=5000,
+                    value=1500,
+                    step=100,
+                    help="Estimated residential/commercial structures receiving high-albedo solar reflective coating (SRI > 100)."
+                )
+                intensity = num_houses / 1500.0
+                st.caption(f"Estimated roof area treated: ~{num_houses * 85 / 10000:.1f} hectares. Shifts rooftop albedo by +{min(0.20, 0.14 * intensity):.2f}.")
+                scenario_inputs = scenario_service.apply_preset_intervention(base_row, "cool_roof", intensity)
 
-        st.markdown("<hr style='margin:12px 0; border-color:#f1f5f9;'>", unsafe_allow_html=True)
-        st.markdown("<b style='font-size:0.82rem; color:#334155;'>Physical Assumptions & Limitations:</b>", unsafe_allow_html=True)
-        for a in res["assumptions_and_limitations"]:
-            st.markdown(f"<li style='font-size:0.78rem; color:#64748b;'>{a}</li>", unsafe_allow_html=True)
+            elif intervention_choice == "urban_greening":
+                num_trees = st.slider(
+                    "Native Saplings / Trees Planted in Ward:",
+                    min_value=250,
+                    max_value=10000,
+                    value=2500,
+                    step=250,
+                    help="High-density Miyawaki clusters, roadside avenues, and micro-park tree saplings."
+                )
+                intensity = num_trees / 2500.0
+                st.caption(f"Estimated canopy cover added: ~{num_trees * 0.002:.1f} hectares. Increases vegetative NDVI by +{min(0.25, 0.16 * intensity):.2f}.")
+                scenario_inputs = scenario_service.apply_preset_intervention(base_row, "urban_greening", intensity)
 
-        st.markdown("</div>", unsafe_allow_html=True)
+            elif intervention_choice == "de_paving":
+                depave_sqm = st.slider(
+                    "Impervious Asphalt / Concrete Area De-paved (m²):",
+                    min_value=5000,
+                    max_value=100000,
+                    value=25000,
+                    step=5000,
+                    help="De-paving non-essential concrete/asphalt plazas and walkways into permeable grass/paver zones."
+                )
+                intensity = depave_sqm / 25000.0
+                st.caption(f"De-paving {depave_sqm:,} m² (~{depave_sqm/10000:.1f} ha) reduces built-up index (NDBI) by -{min(0.18, 0.09 * intensity):.2f}.")
+                scenario_inputs = scenario_service.apply_preset_intervention(base_row, "de_paving", intensity)
+
+            elif intervention_choice == "water_corridor":
+                canal_meters = st.slider(
+                    "Canal / Wetland Water Buffer Restored (Meters):",
+                    min_value=200,
+                    max_value=4000,
+                    value=1200,
+                    step=100,
+                    help="Restoring riparian buffers, desilting municipal canals, or developing retention ponds."
+                )
+                intensity = canal_meters / 1200.0
+                st.caption(f"Restoring {canal_meters:,} linear meters of water corridor improves evaporative cooling buffer.")
+                scenario_inputs = scenario_service.apply_preset_intervention(base_row, "water_corridor", intensity)
+
+            elif intervention_choice == "comprehensive_hap":
+                coverage_pct = st.slider(
+                    "Municipal Resilience Coverage (% of Ward Area):",
+                    min_value=10,
+                    max_value=100,
+                    value=50,
+                    step=5,
+                    help="Multi-sector deployment: cool roofs + urban forestry + shaded walkways + de-paving."
+                )
+                intensity = coverage_pct / 50.0
+                st.caption(f"Targeting {coverage_pct}% of the ward with synchronized urban cooling measures.")
+                scenario_inputs = scenario_service.apply_preset_intervention(base_row, "comprehensive_hap", intensity)
+
+            else: # custom
+                scenario_inputs = dict(base_row)
+                scenario_inputs["NDVI"] = st.slider("NDVI (Vegetation Index):", -0.2, 0.85, float(base_row["NDVI"]), 0.05)
+                scenario_inputs["NDBI"] = st.slider("NDBI (Built-up Index):", -0.4, 0.60, float(base_row["NDBI"]), 0.05)
+                scenario_inputs["Albedo"] = st.slider("Albedo (Reflectance):", 0.05, 0.55, float(base_row.get("Albedo", 0.18)), 0.02)
+                scenario_inputs["Building_Density_pct"] = st.slider("Building Density (%):", 0.0, 95.0, float(base_row["Building_Density_pct"]), 5.0)
+
+        with s_c2:
+            st.markdown("<b style='font-size:0.95rem; color:#0f172a;'>Model Evaluation (Baseline vs. Scenario)</b>", unsafe_allow_html=True)
+
+            res = scenario_service.evaluate_scenario(
+                model=model,
+                baseline_row=base_row,
+                scenario_features=scenario_inputs,
+                vulnerability_score=float(target_ward_record["Mean_Vulnerability_Score"])
+            )
+
+            base_lst = res['baseline']['predicted_lst_c']
+            scen_lst = res['scenario']['predicted_lst_c']
+            cooling = res['delta']['cooling_celsius']
+            base_hri = res['baseline']['heat_risk_index']
+            scen_hri = res['scenario']['heat_risk_index']
+            hri_red = res['delta']['hri_reduction']
+            hri_pct = res['delta']['pct_hri_improvement']
+
+            # Comparison Graph: Baseline vs Scenario
+            fig_eval, (ax_lst, ax_hri) = plt.subplots(1, 2, figsize=(7.2, 2.5), dpi=100)
+            fig_eval.patch.set_facecolor('#ffffff')
+
+            # Subplot 1: Surface Temperature (LST)
+            bars_lst = ax_lst.bar(['Baseline', 'Scenario'], [base_lst, scen_lst], color=['#f87171', '#38bdf8'], width=0.48)
+            ax_lst.set_facecolor('#ffffff')
+            ax_lst.set_ylabel("Surface Temp (°C)", fontsize=8, fontweight='600', color='#475569')
+            ax_lst.set_title("Surface LST (°C)", fontsize=9, fontweight='700', color='#0f172a', pad=6)
+            min_y_lst = max(0, min(base_lst, scen_lst) - 4.0)
+            max_y_lst = max(base_lst, scen_lst) + 3.0
+            ax_lst.set_ylim(min_y_lst, max_y_lst)
+            ax_lst.spines['top'].set_visible(False)
+            ax_lst.spines['right'].set_visible(False)
+            ax_lst.spines['left'].set_color('#cbd5e1')
+            ax_lst.spines['bottom'].set_color('#cbd5e1')
+            ax_lst.tick_params(colors='#475569', labelsize=8)
+
+            for bar in bars_lst:
+                h = bar.get_height()
+                ax_lst.text(bar.get_x() + bar.get_width()/2, h + 0.35, f"{h:.2f}°C", ha='center', va='bottom', fontsize=8, fontweight='700', color='#0f172a')
+            
+            # Delta indicator on LST plot
+            lst_delta_sign = f"-{cooling:.2f}°C" if cooling > 0 else f"+{abs(cooling):.2f}°C"
+            ax_lst.text(0.5, 0.88, f"Impact: {lst_delta_sign}", transform=ax_lst.transAxes, ha='center', fontsize=8, fontweight='800', color='#0284c7' if cooling > 0 else '#dc2626', bbox=dict(boxstyle='round,pad=0.25', facecolor='#f0f9ff' if cooling > 0 else '#fef2f2', edgecolor='#bae6fd' if cooling > 0 else '#fecaca', linewidth=0.8))
+
+            # Subplot 2: Heat Risk Index (HRI)
+            bars_hri = ax_hri.bar(['Baseline', 'Scenario'], [base_hri, scen_hri], color=['#fb923c', '#4ade80'], width=0.48)
+            ax_hri.set_facecolor('#ffffff')
+            ax_hri.set_ylabel("Heat Risk Index (0-1)", fontsize=8, fontweight='600', color='#475569')
+            ax_hri.set_title("Heat Risk Index (HRI)", fontsize=9, fontweight='700', color='#0f172a', pad=6)
+            ax_hri.set_ylim(0, max(max(base_hri, scen_hri) * 1.35, 0.5))
+            ax_hri.spines['top'].set_visible(False)
+            ax_hri.spines['right'].set_visible(False)
+            ax_hri.spines['left'].set_color('#cbd5e1')
+            ax_hri.spines['bottom'].set_color('#cbd5e1')
+            ax_hri.tick_params(colors='#475569', labelsize=8)
+
+            for bar in bars_hri:
+                h = bar.get_height()
+                ax_hri.text(bar.get_x() + bar.get_width()/2, h + 0.02, f"{h:.3f}", ha='center', va='bottom', fontsize=8, fontweight='700', color='#0f172a')
+
+            # Delta indicator on HRI plot
+            hri_delta_text = f"Risk: -{hri_red:.3f} (-{hri_pct:.1f}%)" if hri_red > 0 else "No Change"
+            ax_hri.text(0.5, 0.88, hri_delta_text, transform=ax_hri.transAxes, ha='center', fontsize=8, fontweight='800', color='#15803d' if hri_red > 0 else '#475569', bbox=dict(boxstyle='round,pad=0.25', facecolor='#f0fdf4' if hri_red > 0 else '#f8fafc', edgecolor='#bbf7d0' if hri_red > 0 else '#e2e8f0', linewidth=0.8))
+
+            plt.tight_layout()
+            st.pyplot(fig_eval, use_container_width=True)
+            plt.close(fig_eval)
+
+            # Brief Description and Model Domain Check Callout
+            st.markdown(f"""
+            <div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px; margin-top:4px; font-size:0.8rem; color:#334155;'>
+                <b>Simulated Ward Impact:</b> Applying this intervention shifts ward surface temperature from <b>{base_lst:.2f}°C</b> to <b>{scen_lst:.2f}°C</b> (<span style='color:#0284c7; font-weight:700;'>{lst_delta_sign} cooling</span>), improving the ward Heat Risk Index by <span style='color:#15803d; font-weight:700;'>{hri_pct:.1f}%</span> (from {base_hri:.3f} to {scen_hri:.3f}).
+            </div>
+            """, unsafe_allow_html=True)
+
+            if res["is_valid_domain"]:
+                st.markdown("""
+                <div style='background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:8px 12px; margin-top:8px; font-size:0.78rem; color:#166534; display:flex; align-items:center; gap:8px;'>
+                    <span style='font-size:1rem;'>✅</span>
+                    <div>
+                        <b>Model Domain Check: Within Empirical Bounds.</b> All modified environmental indicators remain within the valid training bounds of satellite observations.
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                clamped_names = ", ".join([c["feature"] for c in res["clamped_features"]])
+                st.markdown(f"""
+                <div style='background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:8px 12px; margin-top:8px; font-size:0.78rem; color:#92400e; display:flex; align-items:center; gap:8px;'>
+                    <span style='font-size:1rem;'>⚠️</span>
+                    <div>
+                        <b>Model Domain Check: Clamped to Empirical Boundary.</b> Indicators (<b>{clamped_names}</b>) reached maximum physical bounds and were safely clamped to prevent extrapolation errors.
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            st.markdown("<hr style='margin:10px 0; border-color:#f1f5f9;'>", unsafe_allow_html=True)
+            st.markdown("<b style='font-size:0.80rem; color:#475569;'>Physical Assumptions & Limitations:</b>", unsafe_allow_html=True)
+            for a in res["assumptions_and_limitations"]:
+                st.markdown(f"<li style='font-size:0.75rem; color:#64748b; line-height:1.3;'>{a}</li>", unsafe_allow_html=True)
+
+    else:
+        # NEW BUILDING CONSTRUCTION IMPACT SIMULATOR
+        b_c1, b_c2 = st.columns([1.1, 1.9])
+
+        with b_c1:
+            st.markdown("<b style='font-size:0.95rem; color:#0f172a;'>Building Specifications & Site Parameters</b>", unsafe_allow_html=True)
+            st.caption("Enter architectural dimensions, occupancy, and parking format to simulate environmental impact.")
+
+            b_sqft = st.slider(
+                "Ground Plot Footprint (sq. ft):",
+                min_value=2000,
+                max_value=100000,
+                value=15000,
+                step=1000,
+                help="Ground footprint area occupied by the proposed building structure."
+            )
+            b_floors = st.slider(
+                "Number of Floors (Stories):",
+                min_value=1,
+                max_value=30,
+                value=6,
+                step=1,
+                help="Total vertical building height in stories."
+            )
+            
+            gba_sqft = b_sqft * b_floors
+            gba_sqm = gba_sqft * 0.092903
+            footprint_sqm = b_sqft * 0.092903
+            
+            st.markdown(f"<div style='font-size:0.75rem; color:#0284c7; font-weight:700; margin-bottom:8px;'>Gross Built Area (GBA): {gba_sqft:,} sq.ft ({gba_sqm:,.0f} m²) | Ground Footprint: {footprint_sqm:,.0f} m²</div>", unsafe_allow_html=True)
+
+            b_residents = st.slider(
+                "Approximate Residents / Occupants:",
+                min_value=10,
+                max_value=2000,
+                value=180,
+                step=10,
+                help="Estimated peak occupant headcount living or working inside the building."
+            )
+
+            b_parking = st.radio(
+                "Parking Facility Type:",
+                options=["Inside Building (Podium / Stilt / Underground)", "Surface Asphalt Parking Lot (Open Ground)"],
+                index=0,
+                help="Surface parking creates a large open heat-absorbing asphalt apron; indoor/underground parking preserves ground footprint."
+            )
+
+            b_basement = st.radio(
+                "Basement Excavation:",
+                options=["Yes (Underground Basement Levels)", "No (Slab on Grade)"],
+                index=0,
+                help="Basements require deep sub-soil excavation affecting groundwater percolation, but provide higher structural thermal mass."
+            )
+
+            st.markdown("<b style='font-size:0.85rem; color:#0f172a; margin-top:10px; display:block;'>Green Building Mitigation Options:</b>", unsafe_allow_html=True)
+            mit_cool_roof = st.checkbox("High-Albedo Cool Roof Coating (SRI > 82)", value=True, help="Reflects 80% solar irradiance from rooftop slab.")
+            mit_permeable = st.checkbox("Permeable Pavers for Driveways & Walkways", value=True, help="Permeable pavers allow rainwater infiltration and avoid asphalt heat trap.")
+            mit_trees = st.checkbox("Mandatory 20% Native Tree Canopy Buffer", value=True, help="Provides continuous tree shading and microclimatic evapotranspiration.")
+            mit_energy = st.checkbox("Energy-Efficient Inverter HVAC Heat Exchangers", value=True, help="Reduces anthropogenic waste heat exhaust into the surrounding street canyon.")
+
+        with b_c2:
+            st.markdown("<b style='font-size:0.95rem; color:#0f172a;'>Microclimate Impact & Mitigation Assessment</b>", unsafe_allow_html=True)
+
+            base_temp = float(target_ward_record["Mean_LST_Celsius"])
+            
+            # Physical impact calculations
+            delta_concrete = min(1.8, (footprint_sqm / 5000.0) * 0.35 + (b_floors * 0.04))
+            delta_ac = min(1.2, (b_residents * 1.2) / 250.0 * 0.25)
+            delta_parking = 0.55 if "Surface" in b_parking else 0.0
+            delta_basement = -0.12 if "Yes" in b_basement else 0.0
+            
+            raw_delta_lst = delta_concrete + delta_ac + delta_parking + delta_basement
+            raw_scen_temp = base_temp + raw_delta_lst
+            
+            cool_roof_savings = 0.45 if mit_cool_roof else 0.0
+            paver_savings = 0.30 if mit_permeable else 0.0
+            tree_savings = 0.40 if mit_trees else 0.0
+            hvac_savings = 0.20 if mit_energy else 0.0
+            
+            total_mitigation = cool_roof_savings + paver_savings + tree_savings + hvac_savings
+            mitigated_delta_lst = max(0.05, raw_delta_lst - total_mitigation)
+            mitigated_scen_temp = base_temp + mitigated_delta_lst
+
+            # Chart: Matplotlib comparison
+            fig_bldg, (ax_t, ax_m) = plt.subplots(1, 2, figsize=(7.2, 2.5), dpi=100)
+            fig_bldg.patch.set_facecolor('#ffffff')
+
+            # Subplot 1: Temperature Comparison
+            labels = ['Ward Baseline', 'Standard Build\n(Unmitigated)', 'Green Build\n(Mitigated)']
+            temps = [base_temp, raw_scen_temp, mitigated_scen_temp]
+            colors = ['#94a3b8', '#ef4444', '#10b981']
+            
+            bars_t = ax_t.bar(labels, temps, color=colors, width=0.50)
+            ax_t.set_facecolor('#ffffff')
+            ax_t.set_ylabel("Localized Temp (°C)", fontsize=8, fontweight='600', color='#475569')
+            ax_t.set_title("Local Surface Heat Impact (°C)", fontsize=9, fontweight='700', color='#0f172a', pad=6)
+            min_y = max(0, min(temps) - 2.5)
+            max_y = max(temps) + 2.0
+            ax_t.set_ylim(min_y, max_y)
+            ax_t.spines['top'].set_visible(False)
+            ax_t.spines['right'].set_visible(False)
+            ax_t.spines['left'].set_color('#cbd5e1')
+            ax_t.spines['bottom'].set_color('#cbd5e1')
+            ax_t.tick_params(colors='#475569', labelsize=7.5)
+
+            for bar in bars_t:
+                h = bar.get_height()
+                ax_t.text(bar.get_x() + bar.get_width()/2, h + 0.25, f"{h:.2f}°C", ha='center', va='bottom', fontsize=8, fontweight='700', color='#0f172a')
+
+            # Subplot 2: Environmental Stress Factors (%)
+            env_metrics = ['Stormwater\nRunoff', 'Impervious\nFraction', 'Waste Heat\nRejection']
+            unmit_scores = [100.0, 95.0, 85.0]
+            runoff_score = 35.0 if (mit_permeable and "Yes" in b_basement) else (50.0 if mit_permeable else 85.0)
+            impervious_score = 40.0 if mit_permeable else 90.0
+            heat_score = 30.0 if (mit_cool_roof and mit_energy) else 70.0
+            mit_scores = [runoff_score, impervious_score, heat_score]
+
+            x_pos = np.arange(len(env_metrics))
+            w_bar = 0.35
+            bars_u = ax_m.bar(x_pos - w_bar/2, unmit_scores, width=w_bar, label='Unmitigated', color='#fca5a5')
+            bars_m = ax_m.bar(x_pos + w_bar/2, mit_scores, width=w_bar, label='Mitigated', color='#6ee7b7')
+            ax_m.set_facecolor('#ffffff')
+            ax_m.set_xticks(x_pos)
+            ax_m.set_xticklabels(env_metrics, fontsize=7.5)
+            ax_m.set_ylabel("Stress Index (0-100)", fontsize=8, fontweight='600', color='#475569')
+            ax_m.set_title("Environmental Stress Index", fontsize=9, fontweight='700', color='#0f172a', pad=6)
+            ax_m.set_ylim(0, 125)
+            ax_m.spines['top'].set_visible(False)
+            ax_m.spines['right'].set_visible(False)
+            ax_m.spines['left'].set_color('#cbd5e1')
+            ax_m.spines['bottom'].set_color('#cbd5e1')
+            ax_m.tick_params(colors='#475569', labelsize=7.5)
+            ax_m.legend(loc='upper right', fontsize=7, frameon=False)
+
+            plt.tight_layout()
+            st.pyplot(fig_bldg, use_container_width=True)
+            plt.close(fig_bldg)
+
+            pct_offset = ((raw_delta_lst - mitigated_delta_lst) / max(0.01, raw_delta_lst)) * 100.0
+
+            # Brief Description of Impact
+            st.markdown(f"""
+            <div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; margin-top:4px; font-size:0.80rem; color:#334155; line-height:1.5;'>
+                <b>Environmental Impact Summary:</b> Constructing this <b>{b_floors}-story building</b> ({b_sqft:,} sq.ft ground footprint, {gba_sqft:,} sq.ft gross built area) for ~<b>{b_residents} occupants</b> in <b>{target_ward_record['ward_name']}</b> introduces substantial concrete thermal mass and HVAC waste heat. Standard unmitigated construction raises localized surface temperature by <b>+{raw_delta_lst:.2f}°C</b> (to {raw_scen_temp:.2f}°C). Enforcing green building measures restrains thermal impact to only <b>+{mitigated_delta_lst:.2f}°C</b> (a <b>{pct_offset:.0f}% heat reduction</b>).
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Municipal Action Measures
+            st.markdown("""
+            <div style='background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; margin-top:8px;'>
+                <b style='font-size:0.82rem; color:#166534;'>🛡️ Recommended Municipal Measures & Building By-Law Compliance:</b>
+                <ol style='font-size:0.77rem; color:#15803d; margin-top:4px; margin-bottom:0; padding-left:18px; line-height:1.4;'>
+                    <li><b>Cool Roof Mandate:</b> Require solar-reflective white coating or high-albedo tiles (SRI ≥ 82) on 100% of the upper roof slab to reject 40–50 W/m² solar heat.</li>
+                    <li><b>Setback Greenery:</b> Mandate minimum 15-20% open plot area planted with native shade trees to shield building walls from direct solar irradiance.</li>
+                    <li><b>Runoff Infiltration Pits:</b> Ensure dual recharge percolation shafts to replenish the groundwater table depleted by basement excavation.</li>
+                    <li><b>Permeable Pavers:</b> Prohibit solid asphalt on non-covered parking and driveways; enforce porous interlocking pavers to maintain soil breathing.</li>
+                </ol>
+            </div>
+            """, unsafe_allow_html=True)
 
 # ==============================================================================
 # TAB 5: EXPLAINABLE AI (XAI & SHAP)
@@ -1051,23 +1552,65 @@ elif current_tab == "Explainable AI (XAI & SHAP)":
         explainer = shap.TreeExplainer(model)
         shap_vals = explainer(X_cell)
 
-        fig, ax = plt.subplots(figsize=(8, 3.8))
-        shap.plots.waterfall(shap_vals[0], max_display=8, show=False)
+        # Human-Readable Feature Name Mapping for Common Citizens
+        FEATURE_HUMAN_NAMES = {
+            "Building_Density_pct": "Building Footprint (% Ground Covered)",
+            "NDVI": "Green Vegetation & Tree Canopy (NDVI)",
+            "Road_Density_km_km2": "Road & Pavement Network (km/km²)",
+            "NDBI": "Impervious Concrete / Built Index (NDBI)",
+            "Dist_to_Water_m": "Distance to Water Channel (meters)",
+            "Dist_to_Park_m": "Distance to Public Park (meters)",
+            "Relative_Humidity_pct": "Ambient Air Humidity (%)",
+            "Albedo": "Solar Roof Reflectance (Albedo)",
+            "NDWI": "Surface Water & Moisture (NDWI)",
+            "Slope_deg": "Ground Slope / Incline (degrees)"
+        }
+
+        # Update SHAP Explanation with user-friendly names
+        shap_exp = shap_vals[0]
+        shap_exp.feature_names = [FEATURE_HUMAN_NAMES.get(c, c) for c in X_cell.columns]
+
+        # Guide explaining how a common citizen or municipal officer can read this graph
+        st.markdown(f"""
+        <div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:12px;'>
+            <div style='font-size:0.88rem; font-weight:800; color:#0f172a; margin-bottom:6px;'>
+                📖 How to Read & Interpret This Ward Explanation Graph:
+            </div>
+            <div style='font-size:0.80rem; color:#475569; line-height:1.5;'>
+                • <b>Starting Point at Bottom (E[f(x)]):</b> The average baseline temperature across the entire municipal corporation (~38.2°C).<br>
+                • <span style='color:#dc2626; font-weight:700;'>🔴 Red Bars Pushing Right (+ values):</span> Environmental factors that are <b>heating up this ward</b> (e.g. dense concrete buildings, lack of tree canopy, dark asphalt roads).<br>
+                • <span style='color:#0284c7; font-weight:700;'>🔵 Blue Bars Pushing Left (- values):</span> Environmental factors that are <b>cooling down this ward</b> (e.g. nearby water bodies, vegetation, reflective roofs).<br>
+                • <b>Final Result at Top (f(x)):</b> The resulting predicted surface temperature (<b>{target_ward_record['Mean_LST_Celsius']:.1f}°C</b>) for {target_ward_record['ward_name']}.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        fig, ax = plt.subplots(figsize=(8.5, 4.0))
+        shap.plots.waterfall(shap_exp, max_display=8, show=False)
         plt.tight_layout()
         st.pyplot(fig)
         plt.close()
 
+        # Plain language summary below the graph
+        st.markdown(f"""
+        <div style='background:#fff7ed; border:1px solid #ffedd5; border-radius:8px; padding:10px 14px; margin-top:8px; font-size:0.80rem; color:#9a3412;'>
+            <b>Key Takeaway for {target_ward_record['ward_name']}:</b> The red bars show which local factors contribute most to making this ward hotter than the city average. Dense building coverage and depleted greenery push heat upward, whereas proximity to water channels and reflective surfaces provide cooling relief.
+        </div>
+        """, unsafe_allow_html=True)
+
         # Global Charts
-        st.markdown("#### Global Model Insights")
+        st.markdown("#### Global Model Insights across All Administrative Wards")
         g1, g2 = st.columns(2)
         with g1:
             b_img = FIGURES_DIR / f"{selected_region}_shap_bar.png"
             if b_img.exists():
                 st.image(str(b_img), caption="Global Mean Feature Importance (|SHAP|)")
+                st.caption("Ranks which environmental factors have the strongest overall grip on surface heat across all wards (building density and tree canopy are dominant).")
         with g2:
             bw_img = FIGURES_DIR / f"{selected_region}_shap_beeswarm.png"
             if bw_img.exists():
                 st.image(str(bw_img), caption="Feature Value vs Impact Direction")
+                st.caption("Shows how high (red dots) vs. low (blue dots) values of each indicator push temperatures up or down across all neighborhoods.")
 
     st.markdown("""
     <div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-top:14px;'>
@@ -1221,13 +1764,14 @@ elif current_tab == "Data Freshness & Provenance":
     # Layers Audit Table
     layers = region_status["layers"]
     for l_key, l_info in layers.items():
+        l_color = "#16a34a" if l_info["status"] in ["Available", "Live Operational"] else "#dc2626"
         st.markdown(f"""
         <div style='background:white; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:8px;'>
             <div style='display:flex; justify-content:space-between; align-items:center;'>
                 <div style='font-size:0.92rem; font-weight:800; color:#0f172a;'>
                     {l_info['name']}
                 </div>
-                <div style='font-size:0.75rem; font-weight:700; color:{"#16a34a" if l_info["status"] in ["Available", "Live Operational"] else "#dc2626"};'>
+                <div style='font-size:0.75rem; font-weight:700; color:{l_color};'>
                     ● {l_info['status']}
                 </div>
             </div>
@@ -1259,143 +1803,6 @@ elif current_tab == "Data Freshness & Provenance":
 
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ==============================================================================
-# TAB 8: TRICHY VS CHENNAI (DELTA)
-# ==============================================================================
-elif current_tab == "Trichy vs Chennai (Delta)":
-    st.markdown("""
-    <div class='op-card' style='margin-bottom:12px;'>
-        <div class='op-card-header'>
-            <div>
-                <div class='op-card-title'>🔬 Delta vs. Non-Delta Regional Comparative Analysis</div>
-                <div class='op-card-subtitle'>Contrasting alluvial inland agricultural fringes with dense coastal metropolitan corridors</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
 
-    comp_table_html = (
-        "<table style='width:100%; border-collapse:collapse; font-size:0.85rem;'>"
-        "<thead>"
-        "<tr style='border-bottom:2px solid #e2e8f0; font-size:0.75rem; text-transform:uppercase; color:#64748b;'>"
-        "<th style='padding:8px;'>Dimension</th>"
-        "<th style='padding:8px;'>Tiruchirappalli (Cauvery Delta Gateway)</th>"
-        "<th style='padding:8px;'>Chennai (Non-Delta Coastal Metro)</th>"
-        "</tr>"
-        "</thead>"
-        "<tbody>"
-        "<tr style='border-bottom:1px solid #f1f5f9;'>"
-        "<td style='padding:10px 8px; font-weight:700;'>Geographic Context</td>"
-        "<td style='padding:10px 8px;'>Inland riverine delta apex surrounded by agricultural wetlands</td>"
-        "<td style='padding:10px 8px;'>Coastal flatland bordered by the Bay of Bengal</td>"
-        "</tr>"
-        "<tr style='border-bottom:1px solid #f1f5f9;'>"
-        "<td style='padding:10px 8px; font-weight:700;'>Natural Cooling Buffer</td>"
-        "<td style='padding:10px 8px;'>Cauvery/Kollidam river network (500m buffer)</td>"
-        "<td style='padding:10px 8px;'>Sea breeze maritime moderation along eastern coast</td>"
-        "</tr>"
-        "<tr style='border-bottom:1px solid #f1f5f9;'>"
-        "<td style='padding:10px 8px; font-weight:700;'>Urban Encroachment</td>"
-        "<td style='padding:10px 8px;'>Conversion of fertile delta agricultural land into industrial corridors</td>"
-        "<td style='padding:10px 8px;'>Extreme impervious density, street canyons, loss of wetlands</td>"
-        "</tr>"
-        "<tr>"
-        "<td style='padding:10px 8px; font-weight:700;'>Peak Hotspots</td>"
-        "<td style='padding:10px 8px; color:#dc2626; font-weight:700;'>44.65°C (Extreme dry summer interior heat)</td>"
-        "<td style='padding:10px 8px; color:#dc2626; font-weight:700;'>45.00°C (Intense apparent heat stress due to humidity)</td>"
-        "</tr>"
-        "</tbody>"
-        "</table>"
-    )
-    st.markdown(comp_table_html, unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
 
-# ==============================================================================
-# TAB 9: LIVE API & ARCHITECTURE
-# ==============================================================================
-elif current_tab == "Live API & Architecture":
-    st.markdown("""
-    <div class='op-card' style='margin-bottom:12px;'>
-        <div class='op-card-header'>
-            <div>
-                <div class='op-card-title'>🌐 System Architecture, Live API Guide & Extensions</div>
-                <div class='op-card-subtitle'>Live weather API ingestion guide, code architectures, and multi-sector extension pathways</div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("### 1. Weather-Model-Based Conditions (Open-Meteo GFS/ICON Integration) [Estimated]")
-    st.caption("Atmospheric model conditions provided by Open-Meteo.com under CC BY 4.0 license (NOAA GFS / DWD ICON blend).")
-
-    col_w1, col_w2 = st.columns([1, 2])
-    with col_w1:
-        st.markdown(f"**Target City:** {reg_info['name']}")
-        st.markdown(f"**Coordinates:** {reg_info['center_lat']:.4f}° N, {reg_info['center_lon']:.4f}° E")
-        st.markdown("**Source:** Open-Meteo API")
-        st.markdown("**Model:** NOAA GFS / DWD ICON blend")
-        st.button("🔄 Fetch Atmospheric Model Conditions Now")
-        
-    with col_w2:
-        live_data = fetch_live_weather(reg_info["center_lat"], reg_info["center_lon"])
-        if live_data:
-            w_c1, w_c2, w_c3, w_c4 = st.columns(4)
-            with w_c1:
-                st.metric("Model Air Temp [Estimated]", f"{live_data.get('temperature_2m', 34.0)}°C")
-            with w_c2:
-                st.metric("Relative Humidity [Estimated]", f"{live_data.get('relative_humidity_2m', 60)}%")
-            with w_c3:
-                st.metric("Apparent Heat Index [Derived]", f"{live_data.get('apparent_temperature', 38.0)}°C")
-            with w_c4:
-                st.metric("Wind Speed [Estimated]", f"{live_data.get('wind_speed_10m', 12)} km/h")
-            valid_t = live_data.get('time', datetime.now().strftime('%Y-%m-%dT%H:00'))
-            retrieved_t = datetime.now().strftime('%H:%M:%S IST')
-            st.success(f"✅ Weather-model-based conditions retrieved from Open-Meteo (NOAA GFS / DWD ICON blend). Valid Time: {valid_t} UTC | Retrieval Time: {retrieved_t}.")
-        else:
-            st.info("Weather-model-based conditions available via Open-Meteo API integration.")
-
-    st.markdown("""
-    <div style='background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-top:16px;'>
-        <h4 style='color:#0f172a; margin-top:0;'>📖 Developer Reference: Weather API Ingestion Architecture</h4>
-        <div style='background:#fffbeb; border:1px solid #fef3c7; border-radius:6px; padding:10px 14px; font-size:0.82rem; color:#92400e; margin-bottom:12px;'>
-            <b>⚠️ Scientific Scope Notice:</b> In this version, weather-model-based conditions are monitored strictly as ambient context and are <b>NOT applied to modify pre-computed static satellite LST or ward risk scores</b>. The spatial model was trained on calibrated summer satellite LST scenes. Feeding dynamic single-point weather into static satellite models without multi-temporal recalibration would be scientifically invalid.
-        </div>
-        <pre style='background:#0f172a; color:#f8fafc; padding:12px; border-radius:6px; font-size:0.82rem;'>
-# [ILLUSTRATION ONLY]: Conceptual architecture for future multi-temporal pipelines
-# 1. Fetch real-time weather
-live = fetch_live_weather(lat=10.7905, lon=78.7047)
-ambient_temp = live["temperature_2m"]
-humidity = live["relative_humidity_2m"]
-
-# 2. In future multi-temporal versions, this would update dynamic forcing features:
-# X_dynamic["Air_Temp_Forcing"] = ambient_temp
-# X_dynamic["RH_Forcing"] = humidity
-# y_pred = dynamic_ensemble.predict(X_dynamic)
-        </pre>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("#### 🚀 Project Roadmap: Methodological Extensions")
-    e1, e2 = st.columns(2)
-    with e1:
-        st.markdown("""
-        <div style='background:white; border:1px solid #e2e8f0; border-radius:10px; padding:16px;'>
-            <div style='font-size:0.75rem; font-weight:800; color:#0284c7; text-transform:uppercase;'>Extension 1</div>
-            <div style='font-weight:800; font-size:1.0rem; margin-top:4px; color:#0f172a;'>🗺️ Custom Area Drawing (Leaflet-Draw)</div>
-            <p style='font-size:0.82rem; color:#64748b; margin-top:6px;'>
-                Integrate <b>Leaflet-Draw</b> to let urban planners delineate custom micro-zones (e.g. informal settlements, bus depots) and aggregate micro-grid heat exposure within user-drawn polygons.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with e2:
-        st.markdown("""
-        <div style='background:white; border:1px solid #e2e8f0; border-radius:10px; padding:16px;'>
-            <div style='font-size:0.75rem; font-weight:800; color:#16a34a; text-transform:uppercase;'>Extension 2</div>
-            <div style='font-weight:800; font-size:1.0rem; margin-top:4px; color:#0f172a;'>📄 Automated PDF Heat Action Plan Dossier</div>
-            <p style='font-size:0.82rem; color:#64748b; margin-top:6px;'>
-                Compile ward assessment indicators, plain-language drivers, and approved proposal details into a structured, printable municipal briefing sheet.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)

@@ -1,0 +1,322 @@
+# Data in System: Spatial Block 5-Fold R² & Heat Risk Index (HRI)
+
+This document provides a comprehensive operational and scientific guide to the core metrics, data structures, and spatial algorithms utilized in **Municipal Heat Watch** (Decision Support & Early Warning System). It specifically explains **Spatial Block 5-Fold $R^2$**, the **Heat Risk Index (HRI)**, their mathematical foundations, and their critical use in municipal governance.
+
+---
+
+## 1. Spatial Block 5-Fold $R^2$
+
+### 1.1 What is Spatial Block 5-Fold $R^2$?
+**Spatial Block 5-Fold $R^2$** is an out-of-fold cross-validation performance metric that evaluates how accurately the spatial machine learning model (Random Forest / Gradient Boosted Spatial Regressor) predicts unseen thermal patterns across geographic regions.
+
+In statistical modeling, the coefficient of determination ($R^2$) measures the proportion of variance in the dependent variable—in our case, satellite-derived Land Surface Temperature (LST in °C)—that is predictable from independent environmental covariates:
+
+$$R^2 = 1 - \frac{\sum_{i=1}^{n} (y_i - \hat{y}_i)^2}{\sum_{i=1}^{n} (y_i - \bar{y})^2}$$
+
+Where:
+- $y_i$ is the actual radiometric LST observed by USGS Landsat-9 TIRS.
+- $\hat{y}_i$ is the out-of-fold model prediction.
+- $\bar{y}$ is the mean observed LST across the region.
+
+In this system, a **Spatial Block 5-Fold $R^2$ of 0.876** means that **87.6% of the spatial variance** in surface heat across unseen geographic blocks is explained by the physical covariates (vegetation deficit, built surface density, albedo, and hydrological distance).
+
+---
+
+### 1.2 Why Random K-Fold CV Fails: The Spatial Autocorrelation Problem
+In standard non-spatial machine learning, datasets are randomly shuffled and split into $K$ partitions. However, **random splitting is scientifically invalid for geospatial data** due to **Tobler's First Law of Geography**:
+
+> *"Everything is related to everything else, but near things are more related than distant things."*
+
+If random K-Fold cross-validation is used on spatial grids:
+1. **Spatial Data Leakage**: Adjacent grid pixels (e.g., 250m apart) share nearly identical microclimates, tree canopies, and soil moisture. When pixel $A$ is in the training set and immediate neighboring pixel $B$ is in the test set, the model simply memorizes the local neighborhood rather than learning genuine physical relationships.
+2. **False Confidence & Overfitting**: Random K-Fold will report an artificially inflated $R^2$ (e.g., $0.96+$), but the model will perform poorly when applied to newly expanding suburban periphery wards or neighboring towns.
+
+---
+
+### 1.3 How Spatial Block Partitioning Works
+To prevent spatial data leakage, the spatial domain is partitioned into **5 contiguous, spatially disjoint geographic blocks**:
+
+1. **Spatial Blocking**: The municipal extent is divided into geographic grid clusters or rectangular blocks (e.g., North-West, North-East, Central, South-West, South-East).
+2. **Fold Assignment**: All grid cells located within an entire geographic block are assigned to the same fold.
+3. **Out-of-Fold Evaluation**: The model is trained on 4 spatial blocks and evaluated *exclusively* on the 5th, completely unseen spatial block. This rotation is repeated 5 times so every block serves as a validation hold-out once.
+4. **Honest Metric**: The resulting $R^2 = 0.876$ reflects genuine generalizability across completely held-out geographic sectors.
+
+```
++-------------------+-------------------+
+|                   |                   |
+|   Block 1 (Fold 1)|   Block 2 (Fold 2)|
+|   [North-West]    |   [North-East]    |
+|                   |                   |
++-------------------+-------------------+
+|          Block 3 (Fold 3)             |
+|          [Central Core]               |
++-------------------+-------------------+
+|   Block 4 (Fold 4)|   Block 5 (Fold 5)|
+|   [South-West]    |   [South-East]    |
++-------------------+-------------------+
+```
+
+---
+
+### 1.4 Municipal & Governance Use of Spatial Block $R^2$
+- **Decision-Making Integrity**: Assures Municipal Commissioners, District Disaster Management Authorities (DDMA), and Town Planning Officers that heat predictions are governed by causal physical drivers (albedo, building density, canopy) rather than random spatial memorization.
+- **Reliable Scenario Testing**: Because the model generalises across space, the "What-If Scenario Workspace" can accurately simulate how interventions (e.g., adding 20% urban greening or high-albedo cool roofs) will alter surface temperatures in any municipal ward.
+
+---
+
+## 2. Heat Risk Index (HRI / WHRI)
+
+### 2.1 What is the Heat Risk Index?
+The **Heat Risk Index (HRI)**—aggregated to administrative boundaries as the **Ward Heat Risk Index (WHRI)**—is a composite risk indicator that quantifies the severe threat heat poses to human lives and urban systems.
+
+Rather than relying purely on temperature (which ignores people) or purely on population density (which ignores heat intensity), HRI combines physical hazard exposure with socio-demographic vulnerability.
+
+---
+
+### 2.2 Mathematical Formulation: Decoupled Geometric Mean
+The Heat Risk Index is formulated using a **geometric decoupling**:
+
+$$\text{HRI} = \sqrt{\text{Exposure} \times \text{Vulnerability}}$$
+
+Both **Exposure** and **Vulnerability** are normalized on a $[0, 1]$ scale:
+
+$$\text{Exposure}_{\text{norm}} = \frac{\text{Exposure} - \text{Exposure}_{\min}}{\text{Exposure}_{\max} - \text{Exposure}_{\min}}$$
+
+$$\text{Vulnerability}_{\text{norm}} = \frac{\text{Vulnerability} - \text{Vulnerability}_{\min}}{\text{Vulnerability}_{\max} - \text{Vulnerability}_{\min}}$$
+
+$$\text{WHRI} = \sqrt{\text{Exposure}_{\text{norm}} \times \text{Vulnerability}_{\text{norm}}} \in [0, 1]$$
+
+---
+
+### 2.3 Component Breakdown
+
+#### A. Exposure Component (Physical Microclimate Hazard)
+Captures the physical severity of thermal radiation and surface conditions:
+1. **Land Surface Temperature (LST in °C)**: Derived from USGS Landsat-9 TIRS Band 10 thermal infrared radiometry (30m sensor resolution, cloud-free summer overpass).
+2. **Surface Urban Heat Island (SUHI) Intensity**: The thermal delta ($\Delta T$) of a ward compared to surrounding rural/vegetated baselines.
+3. **Vegetative Deficit (NDVI)**: Normalized Difference Vegetation Index from Landsat-9 Red and Near-Infrared (NIR) bands. Low NDVI indicates canopy depletion and loss of evaporative cooling.
+4. **Built-Up Density (NDBI & Impervious Surface)**: Normalized Difference Built-Up Index and built-surface percentage from OpenStreetMap and Landsat SWIR bands. High values signify thermal mass retention.
+
+#### B. Vulnerability Component (Demographic & Socio-Spatial Sensitivity)
+Captures the human susceptibility to heat stress and the capacity to adapt:
+1. **Population Density**: High-resolution 100m dasymetrically aggregated human population from **WorldPop 2024**.
+2. **Physiologically Vulnerable Cohorts**: Proportions of children under 5 and senior citizens aged 65+ who face acute risks of heat exhaustion and heatstroke.
+3. **Socio-Economic & Housing Fragility**: Proxy indices for low-income households, uninsulated metal/asbestos sheet roofing, and informal settlements.
+4. **Distance to Healthcare & Water Buffers**: Proximity to the nearest Primary Health Centre (PHC), hospital, and cooling water body (e.g., Cauvery/Kollidam river corridors) derived via OpenStreetMap network distances.
+
+---
+
+### 2.4 Why Geometric Decoupling ($\sqrt{E \times V}$) Instead of Additive Sum ($E + V$)?
+
+A simple additive sum ($E + V$) produces dangerous operational biases:
+- **Case 1: Deserted Industrial Quarry or Open Runway**
+  - Physical Heat ($E$) = $0.95$ (Extremely Hot, 46°C)
+  - Human Population / Vulnerability ($V$) = $0.05$ (Unpopulated)
+  - *Additive*: $0.95 + 0.05 = 1.00$ (Falsely flagged as maximum emergency risk!)
+  - *Geometric*: $\sqrt{0.95 \times 0.05} = 0.218$ (**Low HRI**, correctly recognizing no lives are at immediate risk).
+- **Case 2: Shaded Wealthy Suburb**
+  - High resilience, low temperature, but high data count.
+- **Case 3: Dense Urban Core / Informal Settlement (e.g., Tiruch Ward 23)**
+  - Physical Heat ($E$) = $0.85$ (42.3°C, extreme concrete heat)
+  - Vulnerability ($V$) = $0.88$ (High density, sensitive residents, low canopy)
+  - *Geometric*: $\sqrt{0.85 \times 0.88} = \mathbf{0.865}$ (**Extreme Priority Action Tier**).
+
+The geometric mean guarantees that **acute heat risk is only flagged where intense physical heat intersects with vulnerable human populations**.
+
+---
+
+### 2.5 Risk Category Thresholds
+
+| HRI Range | Priority Tier | Color Code | Operational Meaning |
+| :--- | :--- | :--- | :--- |
+| **HRI $\ge$ 0.70** | **Extreme Priority** | Red (`#dc2626`) | Immediate emergency deployment: mobile water misting, cool shelters, hospital heatstroke wards activated. |
+| **0.55 $\le$ HRI < 0.70** | **Very High** | Orange (`#ea580c`) | High urgency: targeted cool roof retrofits, public hydration points, municipal tree planting mandates. |
+| **0.40 $\le$ HRI < 0.55** | **High** | Amber (`#f59e0b`) | Moderate-high risk: labor hour adjustments, school advisory notices, community awareness. |
+| **0.25 $\le$ HRI < 0.40** | **Moderate** | Green (`#16a34a`) | Routine monitoring, standard civic maintenance. |
+| **HRI < 0.25** | **Low** | Blue (`#0284c7`) | Natural cooling buffer zone (riverine fringes, dense urban tree canopies). |
+
+---
+
+### 2.6 Municipal & Governance Use of HRI
+1. **Administrative Prioritization**: Directly sorts all municipal divisions (e.g., 72 Wards in Tiruchirappalli) from Rank #1 to #72, removing guesswork from budget allocation.
+2. **Heat Action Plan (HAP) Proposal Formulation**: Powers automated proposal generation for specific departments (Public Health, Engineering, Parks & Gardens, Disaster Management).
+3. **Intervention Tracking**: Serves as the quantitative benchmark to measure before-and-after improvements when cool roofs, urban greening, or de-paving initiatives are executed.
+
+---
+
+## 3. System Data Summary Matrix
+
+| Data Metric | Primary Source | Spatial Resolution | Update Cadence | Primary Function |
+| :--- | :--- | :--- | :--- | :--- |
+| **Land Surface Temp (LST)** | USGS Landsat-9 TIRS Band 10 | 30m / 250m grid | Cloud-free summer overpass | Target variable for spatial heat regression |
+| **NDVI (Vegetation Index)** | Landsat-9 OLI-2 (Red & NIR) | 30m | 16-day repeat | Thermal driver & greening potential |
+| **NDBI (Built Index)** | Landsat-9 OLI-2 (NIR & SWIR) | 30m | 16-day repeat | Thermal driver & impervious surface proxy |
+| **Surface Albedo** | Landsat-9 Surface Reflectance | 30m | 16-day repeat | Cool roof baseline and scenario testing |
+| **Population Density** | WorldPop 2024 Dasymetric | 100m raster | Annual | Human exposure & vulnerable headcounts |
+| **Infrastructure & Water** | OpenStreetMap (OSM) Overpass | Vector geometries | Dynamic snapshot | Hydrological cooling distance & healthcare access |
+| **Ambient Weather** | Open-Meteo (NOAA GFS / DWD ICON) | Point forecast | Hourly / 5-min cache | Real-time ambient context & operational alerts |
+
+---
+
+## 4. Tab-by-Tab Graph Interpretations & Mapping Guide
+
+This section systematically maps every graph and visual across all application tabs, explaining what each graph interprets, the variables involved, and how decision-makers, town planners, and citizens should read and act on them.
+
+---
+
+### Tab 1: Dashboard (`📊 Dashboard`)
+
+#### 1. Five KPI Mission-Control Cards
+- **Visual Structure**: 5 horizontal telemetry cards at top of dashboard.
+- **Interprets**:
+  1. **Total Surveyed Wards**: Total administrative units surveyed in the city corporation (e.g. 72 Divisions).
+  2. **Mean Surface Temp**: Average and peak Land Surface Temperature (°C) recorded by Landsat-9 satellite across the corporation.
+  3. **Priority Action Wards**: Count of high-risk wards requiring immediate Heat Action Plan (HAP) deployment (WHRI > 0.50).
+  4. **Spatial Block 5-Fold R²**: Generalization accuracy (0.876) of the spatial AI model evaluated across unseen geographic blocks.
+  5. **Exposed Population**: Total non-double-counted citizens residing in surveyed wards (formatted in thousands `k` or millions `M`).
+- **How to Interpret**: Gives executive leadership an immediate 5-second pulse on city-wide heat severity, statistical model trust, and exposed citizen headcounts.
+
+#### 2. Administrative Ward Rankings Table & Active Ward Quick Assessment
+- **Visual Structure**: Scrollable 8-row viewport table with search filter paired with active ward dispatch card & Open-Meteo live weather widget.
+- **Interprets**:
+  - Comparative ranking (#1 to #72) of all divisions sorted by priority.
+  - Live dry-bulb air temperature, relative humidity, apparent heat index, and wind speed at the active ward's exact geographic centroid.
+- **How to Interpret**: Allows selecting any ward to immediately view why it is vulnerable and its real-time weather conditions.
+
+---
+
+### Tab 2: Ward Risk Profile & Assessment (`📋 Ward Risk Profile`)
+
+#### 1. Thermal Radiation Context (Landsat-9)
+- **Visual Type**: Horizontal Bar Chart (`ax1`).
+- **Variables Shown**:
+  - `Peak Pixel LST (°C)`: Highest localized surface temperature recorded inside any single 30m pixel within the ward.
+  - `Ward Mean LST (°C)`: Area-weighted average surface temperature of the ward.
+  - `City Baseline LST (°C)`: Regional mean temperature across the entire municipal corporation.
+- **How to Interpret**:
+  - If `Ward Mean LST` exceeds `City Baseline`, the ward acts as a localized heat island.
+  - The gap between `Peak Pixel LST` and `Ward Mean LST` highlights severe micro-hotspots (e.g., metal-roof markets, bus stations, or industrial sheds).
+
+#### 2. Physical Environmental Covariates
+- **Visual Type**: Horizontal Bar Chart (`ax2`).
+- **Variables Shown**:
+  - `Water Distance (km)`: Distance to nearest cooling water channel or river (Cauvery / Kollidam).
+  - `Impervious Built Index (NDBI x100)`: Normalized Difference Built-up Index (concrete/asphalt density).
+  - `Tree Canopy (NDVI x100)`: Normalized Difference Vegetation Index (greenery and vegetative health).
+  - `Built Density (%)`: Percentage of plot ground covered by concrete structures.
+- **How to Interpret**:
+  - Long green bar (high NDVI) = good vegetative cooling protection.
+  - Long brown/grey bars (high NDBI, high Built Density) = severe concrete heat absorption.
+  - Long blue bar (far from water) = lack of natural evaporative breeze cooling.
+
+#### 3. Demographic Cohorts (Total Population)
+- **Visual Type**: Horizontal Bar Chart (`ax2_1`).
+- **Variables Shown**:
+  - `General Cohort`: Healthy working-age adult population count and percentage.
+  - `Seniors (>65)`: Elderly residents count and percentage.
+  - `Children (<5)`: Infants and young children count and percentage.
+- **How to Interpret**: High percentages of seniors and young children drastically amplify medical emergencies during heatwaves, signaling where cooling shelters and ORS distribution booths are urgently needed.
+
+#### 4. Socio-Demographic Vulnerability Factors
+- **Visual Type**: Horizontal Bar Chart (`ax2_2`).
+- **Variables Shown**:
+  - `Composite Vulnerability (%)`: Overall human susceptibility index combining age, income, and shelter fragility.
+  - `Child Ratio (%)`: Proportion of children under 5.
+  - `Senior Ratio (%)`: Proportion of seniors over 65.
+  - `Low-Income Households (%)`: Proportion of residents in uninsulated tin/asbestos sheet roofing without air conditioning.
+- **How to Interpret**: Explains *why* people in this ward are vulnerable. Wards with high low-income percentages and high senior ratios cannot afford mechanical cooling and must be prioritized for municipal assistance.
+
+---
+
+### Tab 3: Spatial Heat & Risk Map (`🗺️ Spatial Heat Map`)
+
+#### Interactive Geospatial Choropleth Map (Folium / Leaflet)
+- **Visual Type**: Dynamic vector choropleth map with OpenStreetMap & Esri Satellite basemap toggle.
+- **Interprets**:
+  - Boundary polygons for all 72 administrative wards color-coded into 5 risk tiers:
+    - 🔴 **Extreme Priority** (Red, WHRI ≥ 0.70)
+    - 🟠 **Very High** (Orange, 0.55 ≤ WHRI < 0.70)
+    - 🟡 **High** (Amber, 0.40 ≤ WHRI < 0.55)
+    - 🟢 **Moderate** (Green, 0.25 ≤ WHRI < 0.40)
+    - 🔵 **Low** (Blue, WHRI < 0.25)
+  - Interactive click and hover tooltips showing Ward ID, Name, Rank, Risk Tier, Mean LST, and HRI score.
+- **How to Interpret**: Instantly identifies geographic spatial clustering of heat vulnerability. Shows whether heat is concentrated in the dense historic city center or peripheral industrial corridors.
+
+---
+
+### Tab 4: Scenario Workspace (`🔮 Scenario Simulation`)
+
+#### Sub-Mode A: Ward-Wide Cooling Interventions (HAP)
+- **Graph 1: Surface LST (°C) Comparison**: Side-by-side bar chart of `Baseline LST` vs. `Scenario LST` with a dynamic impact delta pill (`Impact: ↓ -X.XX°C`).
+  - *Interprets*: How much cooler the ground surface will become when applying cool roofs, tree planting, de-paving, or canal restoration.
+- **Graph 2: Heat Risk Index (HRI) Comparison**: Side-by-side bar chart of `Baseline HRI` vs. `Scenario HRI` with risk reduction percentage (`Risk: ↓ -X.XXX (-XX.X%)`).
+  - *Interprets*: The overall human life risk reduction achieved by the municipal cooling investment.
+- **Model Domain Check Callout**:
+  - *Interprets*: Validates whether input environmental feature adjustments remain within observational satellite bounds (Green = Within Empirical Bounds; Yellow = Clamped to Empirical Boundary to prevent unscientific extrapolation).
+
+#### Sub-Mode B: New Building Construction Impact Simulator
+- **Graph 1: Local Surface Heat Impact (°C)**: 3-bar comparison:
+  - `Ward Baseline`: Current temperature of the ward.
+  - `Standard Build (Unmitigated)`: Localized temperature increase when constructing the building with conventional concrete, surface asphalt parking, and standard HVAC.
+  - `Green Build (Mitigated)`: Restrained temperature when incorporating cool roofs, permeable pavers, native tree buffers, and energy-efficient HVAC.
+  - *Interprets*: How much heat a proposed construction adds to the neighborhood, and how much can be successfully prevented through green building by-laws.
+- **Graph 2: Environmental Stress Index (0-100)**: Grouped bar chart comparing Unmitigated vs. Mitigated across 3 critical factors:
+  - `Stormwater Runoff`: Runoff increase and loss of permeable ground.
+  - `Impervious Fraction`: Pavement and concrete footprint.
+  - `Waste Heat Rejection`: Anthropogenic air conditioning heat exhaust.
+  - *Interprets*: The multi-dimensional environmental footprint of new construction and the effectiveness of municipal mitigation measures.
+
+---
+
+### Tab 5: Explainable AI (`🧠 Explainable AI (SHAP)`)
+
+#### 1. Local SHAP Waterfall Plot
+- **Visual Type**: Step-by-step waterfall attribution plot (`shap.plots.waterfall`).
+- **Variables Shown**:
+  - `Building Footprint (% Ground Covered)`
+  - `Green Vegetation & Tree Canopy (NDVI)`
+  - `Road & Pavement Network (km/km²)`
+  - `Impervious Concrete / Built Index (NDBI)`
+  - `Distance to Water Channel (meters)`
+  - `Distance to Public Park (meters)`
+  - `Ambient Air Humidity (%)`
+  - `Solar Roof Reflectance (Albedo)`
+- **How to Interpret**:
+  - **Bottom Starting Line ($E[f(x)]$):** Regional average temperature across the city (~38.2°C).
+  - **Red Arrows Pointing Right (+ values):** Local environmental factors that **push temperatures up** in this ward (e.g. dense concrete buildings, lack of tree cover, asphalt roads).
+  - **Blue Arrows Pointing Left (- values):** Local environmental factors that **pull temperatures down** (e.g. nearby river corridor, green park buffers, reflective roofs).
+  - **Top Result ($f(x)$):** The final predicted surface temperature of the ward.
+  - *Plain-Language Meaning*: Explains *why* the AI predicted this specific temperature for this specific ward without black-box opacity.
+
+#### 2. Global Mean Feature Importance (|SHAP|)
+- **Visual Type**: Horizontal bar ranking plot.
+- **Interprets**: Ranks which physical factors have the strongest overall influence on surface temperatures across the entire city corporation. (Building density and tree canopy deficit consistently emerge as the two dominant drivers).
+
+#### 3. Summary Beeswarm Plot (Feature Value vs. Impact Direction)
+- **Visual Type**: Multi-row scatter plot with color gradient (Red = High feature value; Blue = Low feature value).
+- **Interprets**:
+  - Shows the direction of effect for every single grid cell.
+  - For example, high vegetation (red dots on NDVI row) clusters on the negative side (cooling effect), confirming that expanding canopy cover consistently lowers temperature across all neighborhoods.
+
+---
+
+### Tab 6: HAP Proposals & Review Tracker (`📝 HAP Action Tracker`)
+
+#### Proposal Status Pipeline & Action Register
+- **Visual Type**: Interactive status-filtered tabular audit ledger.
+- **Interprets**:
+  - Tracks municipal cooling projects through their lifecycle: `Draft` $\rightarrow$ `Submitted` $\rightarrow$ `Under Review` $\rightarrow$ `Approved` $\rightarrow$ `Completed` $\rightarrow$ `Rejected`.
+  - Links proposed cooling solutions to specific municipal departments (Engineering, Health, Parks) and tracks allocated budgets (₹ INR).
+- **How to Interpret**: Ensures that scientific model recommendations translate into verifiable municipal capital expenditure and administrative accountability.
+
+---
+
+### Tab 7: Data Freshness & Provenance (`🔄 Data Provenance`)
+
+#### Data Pipeline Integrity & Multi-Source Lineage
+- **Visual Type**: Provenance status cards & audit table.
+- **Interprets**:
+  - Documents the satellite sensor platform (USGS Landsat-9 TIRS/OLI-2), demographic source (WorldPop 2024), street network (OpenStreetMap Overpass), and weather model (Open-Meteo GFS/ICON).
+  - Displays radiometric calibration formulas, atmospheric correction flags, and data freshness timestamps.
+- **How to Interpret**: Provides legal and audit-grade scientific transparency for RTI queries, municipal audits, and academic peer review.
+
